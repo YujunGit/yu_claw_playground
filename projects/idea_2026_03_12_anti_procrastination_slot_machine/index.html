@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>反拖延老虎机 v2</title>
+  <title>反拖延老虎机 v3</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -16,6 +16,7 @@
       --warm: #f59e0b;
       --success: #22c55e;
       --shadow: 0 20px 80px rgba(0, 0, 0, 0.35);
+      --danger: #fb7185;
     }
 
     * { box-sizing: border-box; }
@@ -39,6 +40,18 @@
       border-radius: 28px;
       padding: 28px;
       box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app::before {
+      content: "";
+      position: absolute;
+      inset: -30% auto auto -10%;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(56,189,248,0.16), transparent 70%);
+      pointer-events: none;
     }
 
     .eyebrow {
@@ -48,12 +61,16 @@
       text-transform: uppercase;
       font-size: 12px;
       margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
     }
 
     h1 {
       margin: 0 0 10px;
       font-size: clamp(32px, 6vw, 54px);
       line-height: 1;
+      position: relative;
+      z-index: 1;
     }
 
     .sub {
@@ -61,6 +78,8 @@
       color: var(--muted);
       font-size: 16px;
       line-height: 1.7;
+      position: relative;
+      z-index: 1;
     }
 
     .control-panel {
@@ -68,6 +87,8 @@
       grid-template-columns: 1fr 1fr;
       gap: 14px;
       margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
     }
 
     .control-card {
@@ -112,6 +133,8 @@
       display: grid;
       gap: 16px;
       margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
     }
 
     .slot {
@@ -119,6 +142,14 @@
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 18px;
+      position: relative;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .slot.reveal {
+      border-color: rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.15), 0 12px 28px rgba(56, 189, 248, 0.12);
+      transform: translateY(-1px);
     }
 
     .slot-label {
@@ -131,6 +162,14 @@
       font-size: clamp(22px, 4vw, 31px);
       font-weight: 800;
       line-height: 1.45;
+      min-height: 2.9em;
+      display: flex;
+      align-items: center;
+    }
+
+    .slot-value.spinning {
+      animation: flicker 0.16s linear infinite;
+      color: #cbd5e1;
     }
 
     .meta {
@@ -147,6 +186,7 @@
       border: 1px solid rgba(56, 189, 248, 0.2);
       color: #bae6fd;
       font-size: 13px;
+      transition: 0.2s ease;
     }
 
     .pill.warn {
@@ -161,11 +201,19 @@
       color: #bbf7d0;
     }
 
+    .pill.hot {
+      background: rgba(251, 113, 133, 0.12);
+      border-color: rgba(251, 113, 133, 0.24);
+      color: #fecdd3;
+    }
+
     .actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       margin: 24px 0 16px;
+      position: relative;
+      z-index: 1;
     }
 
     button.action {
@@ -176,16 +224,25 @@
       padding: 14px 18px;
       font-size: 16px;
       font-weight: 700;
-      transition: transform 0.15s ease, opacity 0.15s ease;
+      transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease;
     }
 
     button.action:hover { transform: translateY(-1px); }
     button.action:active { transform: translateY(1px); }
+    button.action:disabled {
+      cursor: wait;
+      opacity: 0.72;
+      filter: saturate(0.8);
+    }
 
     .primary {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
       color: white;
       box-shadow: 0 10px 28px rgba(56, 189, 248, 0.25);
+    }
+
+    .primary.spinning {
+      animation: pulse 0.7s ease-in-out infinite;
     }
 
     .secondary {
@@ -194,11 +251,39 @@
       border: 1px solid var(--border);
     }
 
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+      transition: 0.2s ease;
+    }
+
+    .dot.spinning {
+      background: var(--warm);
+      animation: beacon 0.7s ease-in-out infinite;
+    }
+
     .panels {
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
       gap: 16px;
       margin-top: 18px;
+      position: relative;
+      z-index: 1;
     }
 
     .panel {
@@ -219,11 +304,33 @@
       gap: 8px;
     }
 
+    .history li.fresh {
+      color: #e0f2fe;
+    }
+
     .footer {
       margin-top: 18px;
       color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 0.45; transform: translateY(0); }
+      50% { opacity: 1; transform: translateY(-1px); }
+      100% { opacity: 0.55; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 10px 28px rgba(56, 189, 248, 0.25); }
+      50% { transform: scale(1.02); box-shadow: 0 14px 34px rgba(129, 140, 248, 0.35); }
+    }
+
+    @keyframes beacon {
+      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+      100% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
     }
 
     @media (max-width: 720px) {
@@ -236,9 +343,9 @@
 </head>
 <body>
   <main class="app">
-    <div class="eyebrow">Playground / 15-minute unblocker v2</div>
+    <div class="eyebrow">Playground / 15-minute unblocker v3</div>
     <h1>反拖延老虎机</h1>
-    <p class="sub">点一下，不解决人生，只解决你现在这 15 分钟到底干嘛。现在你还可以选任务类型、切嘴替风格，并且短时间内尽量不重复抽到。</p>
+    <p class="sub">点一下，不解决人生，只解决你现在这 15 分钟到底干嘛。现在会先“开奖”、再揭晓任务和文案，更像一个真正会催你开工的小机器。</p>
 
     <section class="control-panel">
       <div class="control-card">
@@ -252,11 +359,11 @@
     </section>
 
     <section class="machine">
-      <div class="slot">
+      <div class="slot" id="taskSlot">
         <div class="slot-label">🎯 抽到的小任务</div>
         <div class="slot-value" id="task">点下面按钮，抽一个你现在就能开干的小任务。</div>
       </div>
-      <div class="slot">
+      <div class="slot" id="lineSlot">
         <div class="slot-label">🗣️ 开工文案</div>
         <div class="slot-value" id="line">别等状态，先让按钮替你做决定。</div>
         <div class="meta">
@@ -271,6 +378,11 @@
       <button class="action primary" id="spinBtn">🎰 抽一下</button>
       <button class="action secondary" id="againBtn">🔁 再抽一次</button>
       <button class="action secondary" id="copyBtn">📋 复制结果</button>
+    </div>
+
+    <div class="status-bar">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">待命中。随时可以开奖。</span>
     </div>
 
     <section class="panels">
@@ -292,7 +404,7 @@
 
     <p class="footer">
       适合卡住、拖延、脑子发木的时候。<br />
-      原则：任务要够小、够具体、现在就能做。v2 新增：分类筛选、风格切换、防重复抽取。
+      原则：任务要够小、够具体、现在就能做。v3 新增：开奖动画、按钮状态、分步揭晓、高亮反馈。
     </p>
   </main>
 
@@ -344,10 +456,23 @@
     const historyList = document.getElementById('historyList');
     const categoryGroup = document.getElementById('categoryGroup');
     const toneGroup = document.getElementById('toneGroup');
+    const spinBtn = document.getElementById('spinBtn');
+    const againBtn = document.getElementById('againBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const taskSlot = document.getElementById('taskSlot');
+    const lineSlot = document.getElementById('lineSlot');
 
     let currentCategory = '全部';
     let currentTone = '温柔';
     let recentTaskTexts = [];
+    let isSpinning = false;
+    const spinHints = ["咣当咣当……", "命运在搅拌中……", "给你找个最小开工口……", "别眨眼，马上开奖……"];
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
 
     function sample(list) {
       return list[Math.floor(Math.random() * list.length)];
@@ -363,18 +488,21 @@
         const button = document.createElement('button');
         button.className = `chip${item === activeValue ? ' active' : ''}`;
         button.textContent = item;
+        button.disabled = isSpinning;
         button.addEventListener('click', () => onClick(item));
         container.appendChild(button);
       });
     }
 
     function setCategory(category) {
+      if (isSpinning) return;
       currentCategory = category;
       renderAllChips();
       updateSelectionText();
     }
 
     function setTone(tone) {
+      if (isSpinning) return;
       currentTone = tone;
       renderAllChips();
       updateSelectionText();
@@ -401,38 +529,91 @@
 
     function addHistory(task, line) {
       const item = document.createElement('li');
+      item.className = 'fresh';
       item.textContent = `[${task.category} / ${currentTone}] ${task.text} —— ${line}`;
       if (historyList.children.length === 1 && historyList.firstElementChild.textContent.includes('还没开始')) {
         historyList.innerHTML = '';
       }
       historyList.prepend(item);
+      setTimeout(() => item.classList.remove('fresh'), 1400);
       while (historyList.children.length > 6) {
         historyList.removeChild(historyList.lastChild);
       }
     }
 
-    function spin() {
+    function setSpinningState(spinning) {
+      isSpinning = spinning;
+      spinBtn.disabled = spinning;
+      againBtn.disabled = spinning;
+      copyBtn.disabled = spinning;
+      spinBtn.classList.toggle('spinning', spinning);
+      statusDot.classList.toggle('spinning', spinning);
+      taskEl.classList.toggle('spinning', spinning);
+      lineEl.classList.toggle('spinning', spinning);
+      if (spinning) {
+        spinBtn.textContent = '🎲 开奖中…';
+        selectionEl.classList.add('hot');
+      } else {
+        spinBtn.textContent = '🎰 抽一下';
+        selectionEl.classList.remove('hot');
+      }
+      renderAllChips();
+    }
+
+    function flashReveal(slot) {
+      slot.classList.add('reveal');
+      setTimeout(() => slot.classList.remove('reveal'), 900);
+    }
+
+    async function spin() {
+      if (isSpinning) return;
+
       const pool = getFilteredTasks();
       const task = sample(pool);
       const line = sample(linesByTone[currentTone]);
 
+      setSpinningState(true);
+      durationEl.textContent = '建议时长：计算中';
+      modeEl.textContent = '模式：开奖中';
+      statusText.textContent = sample(spinHints);
+
+      const teaseTasks = pool.slice(0, Math.min(5, pool.length)).map((t) => t.text);
+      const teaseLines = linesByTone[currentTone];
+
+      for (let i = 0; i < 8; i++) {
+        taskEl.textContent = sample(teaseTasks);
+        lineEl.textContent = sample(teaseLines);
+        statusText.textContent = sample(spinHints);
+        await sleep(95 + i * 18);
+      }
+
+      statusText.textContent = '先揭晓任务……';
       taskEl.textContent = task.text;
-      lineEl.textContent = line;
       durationEl.textContent = `建议时长：${task.duration}`;
       modeEl.textContent = `模式：${task.mode} / ${task.category}`;
+      flashReveal(taskSlot);
+      await sleep(420);
+
+      statusText.textContent = '再补一句嘴替……';
+      lineEl.textContent = line;
+      flashReveal(lineSlot);
+      await sleep(280);
+
       rememberTask(task.text);
       addHistory(task, line);
+      statusText.textContent = '开奖完毕。现在别再抽了，先开干 5 分钟。';
+      setSpinningState(false);
     }
 
     async function copyResult() {
-      const text = `反拖延老虎机 v2\n任务：${taskEl.textContent}\n文案：${lineEl.textContent}\n${durationEl.textContent}｜${modeEl.textContent}｜${selectionEl.textContent}`;
+      const text = `反拖延老虎机 v3\n任务：${taskEl.textContent}\n文案：${lineEl.textContent}\n${durationEl.textContent}｜${modeEl.textContent}｜${selectionEl.textContent}`;
       try {
         await navigator.clipboard.writeText(text);
-        const old = lineEl.textContent;
-        lineEl.textContent = '已复制。别继续抽第八次了，先去干 5 分钟。';
+        const old = statusText.textContent;
+        statusText.textContent = '已复制。别继续抽第八次了，先去干 5 分钟。';
         setTimeout(() => {
-          if (lineEl.textContent === '已复制。别继续抽第八次了，先去干 5 分钟。') {
-            lineEl.textContent = old;
+          if (statusText.textContent === '已复制。别继续抽第八次了，先去干 5 分钟。') {
+            statusText.textContent = old;
           }
         }, 1500);
       } catch {
@@ -443,9 +624,9 @@
     renderAllChips();
     updateSelectionText();
 
-    document.getElementById('spinBtn').addEventListener('click', spin);
-    document.getElementById('againBtn').addEventListener('click', spin);
-    document.getElementById('copyBtn').addEventListener('click', copyResult);
+    spinBtn.addEventListener('click', spin);
+    againBtn.addEventListener('click', spin);
+    copyBtn.addEventListener('click', copyResult);
   </script>
 </body>
 </html>
