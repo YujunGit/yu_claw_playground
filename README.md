@@ -13,4 +13,9 @@
 - 目录：`projects/idea_2026_03_11_reverse_pomodoro_anti_coach/`
 - 说明：一个反着来的小番茄钟，先劝你合法摸鱼，再把你拉回工作。
 
+## 2026-03-12
+- 今日创意冲刺选题：**反拖延老虎机**
+- 目录：`projects/idea_2026_03_12_anti_procrastination_slot_machine/`
+- 说明：一个超轻量网页小工具，点一下就随机给你一个 15 分钟以内的小任务和一句开工文案。
+
 <!-- commit identity check: XiaoXiaoYu -->

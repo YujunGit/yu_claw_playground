@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>反拖延老虎机</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: rgba(15, 23, 42, 0.78);
+      --border: rgba(148, 163, 184, 0.28);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #f59e0b;
+      --good: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 55%, #020617 100%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .app {
+      width: min(760px, 100%);
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.35);
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(32px, 6vw, 52px);
+      line-height: 1;
+    }
+    .sub {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .machine {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .slot {
+      background: rgba(15, 23, 42, 0.78);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .slot-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .slot-value {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 800;
+      line-height: 1.4;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: #bae6fd;
+      font-size: 13px;
+    }
+    .pill.warn {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.25);
+      color: #fde68a;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 24px 0 16px;
+    }
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      cursor: pointer;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(1px); }
+    .primary {
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      color: white;
+      box-shadow: 0 10px 28px rgba(56, 189, 248, 0.25);
+    }
+    .secondary {
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .history {
+      margin-top: 18px;
+      border-top: 1px dashed var(--border);
+      padding-top: 18px;
+    }
+    .history h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+      color: var(--muted);
+    }
+    .history ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text);
+      display: grid;
+      gap: 8px;
+    }
+    .footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="eyebrow">Playground / 15-minute unblocker</div>
+    <h1>反拖延老虎机</h1>
+    <p class="sub">点一下，不解决人生，只解决你现在这 15 分钟到底干嘛。</p>
+
+    <section class="machine">
+      <div class="slot">
+        <div class="slot-label">🎯 抽到的小任务</div>
+        <div class="slot-value" id="task">点下面按钮，抽一个你现在就能开干的小任务。</div>
+      </div>
+      <div class="slot">
+        <div class="slot-label">🗣️ 开工文案</div>
+        <div class="slot-value" id="line">别等状态，先让按钮替你做决定。</div>
+        <div class="meta">
+          <span class="pill" id="duration">默认：15 分钟以内</span>
+          <span class="pill warn" id="mode">模式：随机开工</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="primary" id="spinBtn">🎰 抽一下</button>
+      <button class="secondary" id="againBtn">🔁 再抽一次</button>
+      <button class="secondary" id="copyBtn">📋 复制结果</button>
+    </div>
+
+    <section class="history">
+      <h2>最近抽到的任务</h2>
+      <ul id="historyList">
+        <li>还没开始抽，先让今天动起来。</li>
+      </ul>
+    </section>
+
+    <p class="footer">
+      适合卡住、拖延、脑子发木的时候。<br/>
+      原则：任务要够小、够具体、现在就能做。
+    </p>
+  </main>
+
+  <script>
+    const tasks = [
+      { text: "把你现在最想逃避的事，只做第一步，限时 10 分钟。", duration: "10 分钟", mode: "硬启动" },
+      { text: "清掉 3 条最碍眼的未读消息，不回长文，只做处理。", duration: "8 分钟", mode: "低阻力" },
+      { text: "打开一个项目文件，只改 1 个最小问题，然后停。", duration: "15 分钟", mode: "止血型" },
+      { text: "把脑子里那个模糊想法写成 5 句话，不求完整。", duration: "12 分钟", mode: "脑雾清理" },
+      { text: "整理桌面/下载文件夹，只删或归档 10 个东西。", duration: "10 分钟", mode: "清场" },
+      { text: "把待办里最恶心的一项拆成 3 个小步骤。", duration: "9 分钟", mode: "拆弹型" },
+      { text: "写一个超烂版本的开头，只允许追求完成，不准追求好。", duration: "15 分钟", mode: "烂稿优先" },
+      { text: "给一个拖着没发的人发一句超短消息：‘我在，晚点补完整。’", duration: "5 分钟", mode: "社交清障" }
+    ];
+
+    const lines = [
+      "别装死，今天不是做完它，今天只是把它打开。",
+      "你不需要灵感，你需要一个不太情愿但确实开始的自己。",
+      "先做一个烂版本，未来的你会感谢现在这个不挑剔的你。",
+      "拖延不是你懒，是任务太大。现在我们把它打碎。",
+      "只干 10 分钟，10 分钟后你爱跑再跑。",
+      "先动手，尊严和状态会在路上自己补票。",
+      "你现在缺的不是计划，是一次小到不能拒绝的开始。"
+    ];
+
+    const taskEl = document.getElementById('task');
+    const lineEl = document.getElementById('line');
+    const durationEl = document.getElementById('duration');
+    const modeEl = document.getElementById('mode');
+    const historyList = document.getElementById('historyList');
+
+    function pick(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function spin() {
+      const task = pick(tasks);
+      const line = pick(lines);
+      taskEl.textContent = task.text;
+      lineEl.textContent = line;
+      durationEl.textContent = `建议时长：${task.duration}`;
+      modeEl.textContent = `模式：${task.mode}`;
+
+      const item = document.createElement('li');
+      item.textContent = `${task.text} —— ${line}`;
+      if (historyList.children.length === 1 && historyList.firstElementChild.textContent.includes('还没开始')) {
+        historyList.innerHTML = '';
+      }
+      historyList.prepend(item);
+      while (historyList.children.length > 5) {
+        historyList.removeChild(historyList.lastChild);
+      }
+    }
+
+    async function copyResult() {
+      const text = `反拖延老虎机\n任务：${taskEl.textContent}\n文案：${lineEl.textContent}\n${durationEl.textContent}｜${modeEl.textContent}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        const old = lineEl.textContent;
+        lineEl.textContent = '已复制，去干，不要再抽第八次。';
+        setTimeout(() => {
+          if (lineEl.textContent === '已复制，去干，不要再抽第八次。') lineEl.textContent = old;
+        }, 1500);
+      } catch {
+        alert('复制失败，但内容已经在页面上了。');
+      }
+    }
+
+    document.getElementById('spinBtn').addEventListener('click', spin);
+    document.getElementById('againBtn').addEventListener('click', spin);
+    document.getElementById('copyBtn').addEventListener('click', copyResult);
+  </script>
+</body>
+</html>
