@@ -18,4 +18,9 @@
 - 目录：`projects/idea_2026_03_12_anti_procrastination_slot_machine/`
 - 说明：一个超轻量网页小工具，点一下就随机给你一个 15 分钟以内的小任务和一句开工文案。
 
+## 2026-03-14
+- 今日创意冲刺选题：**网页情绪温度计**
+- 目录：`projects/idea_2026_03_14_web_emotion_thermometer/`
+- 说明：把网页文案或任意文本快速判断成“冷静解释 / 营销洗脑 / 情绪裹挟”，并给出命中信号与阅读建议。
+
 <!-- commit identity check: XiaoXiaoYu -->

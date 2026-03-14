@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>网页情绪温度计</title>
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: rgba(8, 17, 31, 0.82);
+      --line: rgba(148, 163, 184, 0.22);
+      --text: #e5eefb;
+      --muted: #8ea3c2;
+      --cold: #60a5fa;
+      --warm: #f59e0b;
+      --hot: #fb7185;
+      --ok: #34d399;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(96,165,250,0.16), transparent 28%),
+        radial-gradient(circle at 90% 10%, rgba(251,113,133,0.12), transparent 24%),
+        linear-gradient(180deg, #0b1324 0%, #050913 100%);
+      color: var(--text);
+    }
+    .app {
+      width: min(960px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #7dd3fc;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 1.05;
+    }
+    .sub {
+      margin: 14px 0 22px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 760px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 320px;
+      resize: vertical;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(2, 6, 23, 0.85);
+      color: var(--text);
+      padding: 16px;
+      font: inherit;
+      line-height: 1.7;
+      outline: none;
+    }
+    textarea:focus { border-color: rgba(96,165,250,0.55); }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      color: #06111f;
+      background: linear-gradient(135deg, #7dd3fc, #34d399);
+    }
+    button.secondary {
+      color: var(--text);
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+    .meter {
+      margin-top: 10px;
+      background: rgba(2, 6, 23, 0.8);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      height: 16px;
+    }
+    .fill {
+      height: 100%;
+      width: 24%;
+      background: linear-gradient(90deg, var(--cold), var(--warm), var(--hot));
+      transition: width 0.35s ease;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      margin: 8px 8px 0 0;
+      border: 1px solid transparent;
+    }
+    .tag.cold { background: rgba(96,165,250,0.12); color: #bfdbfe; border-color: rgba(96,165,250,0.25); }
+    .tag.warm { background: rgba(245,158,11,0.12); color: #fde68a; border-color: rgba(245,158,11,0.24); }
+    .tag.hot { background: rgba(251,113,133,0.12); color: #fecdd3; border-color: rgba(251,113,133,0.24); }
+    .tag.ok { background: rgba(52,211,153,0.12); color: #a7f3d0; border-color: rgba(52,211,153,0.24); }
+    .result-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 10px 0 6px;
+    }
+    .muted { color: var(--muted); }
+    ul { padding-left: 18px; line-height: 1.7; }
+    .sample-list button {
+      margin: 8px 8px 0 0;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+      textarea { min-height: 220px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="eyebrow">Playground · 2026-03-14</div>
+    <h1>网页情绪温度计</h1>
+    <p class="sub">
+      贴一段文案、网页正文、广告页介绍或社媒长帖，快速判断它更偏向
+      <strong>冷静解释</strong>、<strong>营销洗脑</strong>，还是 <strong>情绪裹挟</strong>。
+      这是一个轻量启发式分析器，不是假装“读心”，重点是帮你更快看清文风和操控感。
+    </p>
+
+    <section class="grid">
+      <div class="card">
+        <h2>输入文本</h2>
+        <textarea id="input">今天这套方法不是普通升级，而是重新定义效率的关键机会。现在就加入，别再错过这个会彻底改变你人生的窗口期。已经有无数人证明它有效，如果你还在犹豫，就等于主动选择落后。</textarea>
+        <div class="toolbar">
+          <button id="analyzeBtn">开始测温</button>
+          <button id="clearBtn" class="secondary">清空</button>
+        </div>
+        <div class="sample-list">
+          <button class="secondary" data-sample="冷静解释：我们比较了三种方案，各自成本和性能差异如下。A 最稳定，B 最快，C 最便宜，但维护成本更高。">冷静解释样例</button>
+          <button class="secondary" data-sample="营销洗脑：限时、唯一、闭眼入、行业都在抢。现在不上车，明天就只能高价追。">营销洗脑样例</button>
+          <button class="secondary" data-sample="情绪裹挟：如果你真的在乎家人、团队和未来，就不该再犹豫。此刻不做决定，以后后悔也来不及。">情绪裹挟样例</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="muted">分析结果</div>
+        <div id="label" class="result-title">等待分析</div>
+        <div id="summary" class="muted">点击“开始测温”后，这里会给出一句直观判断。</div>
+
+        <div class="meter"><div id="fill" class="fill"></div></div>
+        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--muted);">
+          <span>冷静</span><span>混合</span><span>高压</span>
+        </div>
+
+        <div style="margin-top:16px;">
+          <span id="toneTag" class="tag cold">语气：未分析</span>
+          <span id="riskTag" class="tag ok">操控感：未分析</span>
+        </div>
+
+        <h3 style="margin-top:22px;">命中信号</h3>
+        <ul id="signals">
+          <li>等待分析…</li>
+        </ul>
+
+        <h3>小结建议</h3>
+        <ul id="advice">
+          <li>等待分析…</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const EXPLAIN_WORDS = ["比较", "数据", "成本", "方案", "依据", "实验", "分析", "差异", "步骤", "风险", "限制", "结果", "因为", "例如", "具体", "假设"];
+    const MARKETING_WORDS = ["限时", "唯一", "必入", "闭眼入", "颠覆", "爆款", "抢", "马上", "立刻", "顶级", "重磅", "错过", "窗口期", "升级", "行业领先"];
+    const EMOTION_WORDS = ["如果你真的", "后悔", "羞耻", "害怕", "落后", "辜负", "必须", "绝不能", "人生", "命运", "家人", "未来", "现在不", "再不", "来不及"];
+
+    const input = document.getElementById('input');
+    const label = document.getElementById('label');
+    const summary = document.getElementById('summary');
+    const fill = document.getElementById('fill');
+    const toneTag = document.getElementById('toneTag');
+    const riskTag = document.getElementById('riskTag');
+    const signals = document.getElementById('signals');
+    const advice = document.getElementById('advice');
+
+    function countHits(text, words) {
+      let hits = 0;
+      for (const word of words) {
+        if (text.includes(word)) hits += 1;
+      }
+      return hits;
+    }
+
+    function bullets(node, items) {
+      node.innerHTML = '';
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        node.appendChild(li);
+      });
+    }
+
+    function analyze() {
+      const text = input.value.trim();
+      if (!text) {
+        label.textContent = '请先输入文本';
+        summary.textContent = '空白文本没法测温。';
+        fill.style.width = '0%';
+        toneTag.className = 'tag cold';
+        riskTag.className = 'tag ok';
+        toneTag.textContent = '语气：空白';
+        riskTag.textContent = '操控感：无';
+        bullets(signals, ['没有检测到文本内容。']);
+        bullets(advice, ['贴一段你想判断的话，再试一次。']);
+        return;
+      }
+
+      const explainHits = countHits(text, EXPLAIN_WORDS);
+      const marketingHits = countHits(text, MARKETING_WORDS);
+      const emotionHits = countHits(text, EMOTION_WORDS);
+      const exclamations = (text.match(/[！!]/g) || []).length;
+      const urgency = (text.match(/现在|立刻|马上|赶紧|立即/g) || []).length;
+
+      const coldScore = explainHits * 16 + Math.max(0, 10 - exclamations * 2);
+      const marketingScore = marketingHits * 18 + urgency * 10 + exclamations * 6;
+      const emotionalScore = emotionHits * 20 + exclamations * 4;
+      const pressure = Math.max(0, Math.min(100, Math.round(marketingScore * 0.55 + emotionalScore * 0.75 - explainHits * 5)));
+
+      let finalLabel = '冷静解释';
+      let desc = '这段文本更像在解释信息，而不是推着你立刻做决定。';
+      let toneClass = 'cold';
+      let toneText = '语气：偏冷静';
+      let riskClass = pressure > 65 ? 'hot' : pressure > 35 ? 'warm' : 'ok';
+      let riskText = pressure > 65 ? '操控感：偏高' : pressure > 35 ? '操控感：中等' : '操控感：较低';
+
+      if (marketingScore >= coldScore && marketingScore >= emotionalScore) {
+        finalLabel = '营销洗脑';
+        desc = '高频使用“错过/限时/升级/马上”等刺激词，重点在驱动转化，不在平衡信息。';
+        toneClass = 'warm';
+        toneText = '语气：强推销';
+      }
+      if (emotionalScore > marketingScore && emotionalScore >= coldScore) {
+        finalLabel = '情绪裹挟';
+        desc = '更依赖 guilt / fear / urgency，把“不行动”包装成一种道德或身份失败。';
+        toneClass = 'hot';
+        toneText = '语气：高压裹挟';
+      }
+
+      label.textContent = finalLabel;
+      summary.textContent = desc;
+      fill.style.width = `${Math.max(12, pressure)}%`;
+      toneTag.className = `tag ${toneClass}`;
+      riskTag.className = `tag ${riskClass}`;
+      toneTag.textContent = toneText;
+      riskTag.textContent = riskText;
+
+      const signalItems = [];
+      if (explainHits) signalItems.push(`检测到 ${explainHits} 个偏解释型词汇（如“比较 / 数据 / 方案 / 风险”）。`);
+      if (marketingHits) signalItems.push(`检测到 ${marketingHits} 个营销刺激词（如“限时 / 错过 / 升级 / 立刻”）。`);
+      if (emotionHits) signalItems.push(`检测到 ${emotionHits} 个情绪压迫词（如“后悔 / 落后 / 人生 / 家人”）。`);
+      if (urgency) signalItems.push(`检测到 ${urgency} 处“现在 / 马上 / 立即”类催促表达。`);
+      if (exclamations) signalItems.push(`检测到 ${exclamations} 个感叹号，情绪强度明显提高。`);
+      if (!signalItems.length) signalItems.push('没有命中明显关键词，说明文本较中性，或超出了当前规则范围。');
+      bullets(signals, signalItems);
+
+      const adviceItems = [];
+      if (finalLabel === '冷静解释') {
+        adviceItems.push('可以继续看事实、样本量、对比基线和隐藏前提。');
+        adviceItems.push('即使语气冷静，也要确认数据与结论是否真的对应。');
+      } else if (finalLabel === '营销洗脑') {
+        adviceItems.push('先把所有“马上决定”的词删掉，再看剩下的信息还有没有价值。');
+        adviceItems.push('检查是否故意回避成本、限制条件、适用边界。');
+      } else {
+        adviceItems.push('把“如果你真的…”之类句子改写成客观事实，看看论点是否还站得住。');
+        adviceItems.push('遇到 guilt / fear 驱动时，先暂停，不要在被推着走时做决定。');
+      }
+      adviceItems.push('这是启发式工具，不是最终裁决；适合做快速初筛。');
+      bullets(advice, adviceItems);
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', analyze);
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      input.value = '';
+      analyze();
+    });
+    document.querySelectorAll('[data-sample]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        input.value = btn.dataset.sample;
+        analyze();
+      });
+    });
+
+    analyze();
+  </script>
+</body>
+</html>
