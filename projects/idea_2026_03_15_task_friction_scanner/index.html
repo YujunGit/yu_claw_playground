@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>任务摩擦扫描仪</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --card: rgba(12, 26, 44, 0.86);
+      --line: rgba(125, 201, 255, 0.2);
+      --text: #ecf7ff;
+      --muted: #9fc3dc;
+      --accent: #6fe3ff;
+      --accent2: #89ffb7;
+      --danger: #ff9a8b;
+      --shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(75, 153, 255, 0.22), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(93, 255, 190, 0.14), transparent 26%),
+        linear-gradient(135deg, #040b16, var(--bg));
+      padding: 28px;
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+    .hero, .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero { padding: 28px; }
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--accent2);
+      background: rgba(111, 227, 255, 0.1);
+      letter-spacing: 0.04em;
+    }
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.08;
+    }
+    .sub {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 20px;
+    }
+    .panel { padding: 22px; }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
+    input, select, textarea, button {
+      width: 100%;
+      border: 1px solid rgba(140, 207, 255, 0.18);
+      border-radius: 14px;
+      background: rgba(7, 17, 31, 0.75);
+      color: var(--text);
+      padding: 14px 16px;
+      font-size: 15px;
+      outline: none;
+    }
+    textarea {
+      min-height: 112px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(111, 227, 255, 0.7);
+      box-shadow: 0 0 0 3px rgba(111, 227, 255, 0.14);
+    }
+    .stack { display: grid; gap: 16px; }
+    .inline2 {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr 1fr;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .primary {
+      background: linear-gradient(135deg, var(--accent), #48b8ff);
+      color: #052033;
+      border: none;
+      box-shadow: 0 10px 24px rgba(72, 184, 255, 0.28);
+    }
+    .secondary {
+      background: rgba(255,255,255,0.04);
+    }
+    button:hover {
+      transform: translateY(-1px);
+    }
+    .meter {
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+      margin: 10px 0 8px;
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #74f0ff, #ffe27d, #ff9a8b);
+      transition: width .28s ease;
+    }
+    .score {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .score strong { font-size: 20px; }
+    .cards {
+      display: grid;
+      gap: 12px;
+    }
+    .result-card {
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .result-card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--accent2);
+    }
+    .result-card p, .result-card li {
+      margin: 0;
+      color: var(--text);
+      line-height: 1.75;
+    }
+    .result-card ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .tips {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .footer {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      padding-bottom: 8px;
+    }
+    @media (max-width: 880px) {
+      .grid, .inline2 { grid-template-columns: 1fr; }
+      body { padding: 16px; }
+      .hero, .panel { border-radius: 18px; }
+      .actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Playground · 2026-03-15 · 启动阻力拆解器</div>
+      <h1>任务摩擦扫描仪</h1>
+      <p class="sub">给一个任务，它会判断你卡住的位置，把“太大、太虚、太怕、太乱”翻译成能立刻开始的第一步。不是鸡汤，是让你少一点卡顿。</p>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="stack">
+          <div>
+            <label for="task">你现在卡住的任务</label>
+            <input id="task" value="给一个新项目写首页文案" />
+          </div>
+          <div class="inline2">
+            <div>
+              <label for="duration">预计总时长</label>
+              <select id="duration">
+                <option value="10">10 分钟以内</option>
+                <option value="30">30 分钟左右</option>
+                <option value="60" selected>1 小时左右</option>
+                <option value="120">2 小时以上</option>
+              </select>
+            </div>
+            <div>
+              <label for="energy">当前状态</label>
+              <select id="energy">
+                <option value="low">脑子不太转</option>
+                <option value="mid" selected>一般，还能动</option>
+                <option value="high">清醒，能推进</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="blocker">最像你现在的卡点</label>
+            <select id="blocker">
+              <option value="start">不知道从哪开始</option>
+              <option value="too_big" selected>任务太大，一想就烦</option>
+              <option value="distraction">容易分心，坐不住</option>
+              <option value="fear">怕做不好，迟迟不敢动</option>
+              <option value="comm">需要沟通确认，懒得开口</option>
+              <option value="missing">资料不齐，越想越卡</option>
+            </select>
+          </div>
+          <div>
+            <label for="notes">补充一下现场情况（可选）</label>
+            <textarea id="notes">我知道这个任务应该做，但总觉得“还没想清楚”，所以一直没打开文档。</textarea>
+          </div>
+          <div class="actions">
+            <button class="primary" id="scanBtn">开始扫描</button>
+            <button class="secondary" id="demoBtn">换一个示例</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="score">
+          <div>
+            <div style="color: var(--muted); font-size: 13px;">当前摩擦等级</div>
+            <strong id="scoreLabel">中高阻力</strong>
+          </div>
+          <div id="scoreNumber" style="font-size: 28px; color: var(--accent); font-weight: 800;">64</div>
+        </div>
+        <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+        <div class="tips" id="frictionHint"></div>
+        <div class="cards" id="results"></div>
+      </div>
+    </section>
+
+    <div class="footer">启发式 playground：帮助启动，不替代判断。最重要的是——先动一口。</div>
+  </div>
+
+  <script>
+    const blockerRules = {
+      start: {
+        base: 46,
+        hint: '你不是不会做，而是没有抓到第一个抓手。',
+        explain: '起点模糊会让大脑自动继续拖延，因为它不知道第一步具体长什么样。',
+        twoMinute: task => `只开一个空白文档，写下「${task}」这 1 行标题，再补 3 个你觉得可能需要的小标题。`,
+        sprint: task => `给「${task}」列一个 15 分钟骨架：目标 / 需要资料 / 第一版输出长什么样。`,
+        fallback: task => `如果还是不想做，就只花 60 秒写一句：做完「${task}」后会省掉什么麻烦？`
+      },
+      too_big: {
+        base: 62,
+        hint: '不是懒，是任务体积吓人。',
+        explain: '当任务像一整团雾，大脑会把它识别成高成本事件，于是自动回避。',
+        twoMinute: task => `把「${task}」拆成 3 块，只允许每块写 5 个字以内，比如：搜资料 / 出草稿 / 微调。`,
+        sprint: task => `先只做「${task}」里最可见的一小段，用 15 分钟做出一个丑但真实存在的第一版。`,
+        fallback: task => `把完成标准砍半：今天不求做完「${task}」，只求留下一个可继续接力的半成品。`
+      },
+      distraction: {
+        base: 58,
+        hint: '环境阻力比任务本身更大。',
+        explain: '注意力不断被切走时，启动成本会反复归零。',
+        twoMinute: task => `给「${task}」开一个专属计时器，只承诺专注 2 分钟，同时把会打断你的 1 个入口先关掉。`,
+        sprint: task => `做一个 15 分钟单目标冲刺：只允许推进「${task}」的一个微动作，别切标签页。`,
+        fallback: task => `如果状态散，就先把手机放远、桌面只留与「${task}」有关的一个窗口。`
+      },
+      fear: {
+        base: 67,
+        hint: '你卡的不是执行，是评判。',
+        explain: '担心做不好时，大脑会误以为“不开始”就能避免失败感。',
+        twoMinute: task => `故意允许自己做一个很烂的「${task}」第一版，目标只有：留下可修改的痕迹。`,
+        sprint: task => `用 15 分钟写出「${task}」的最低可交付版本，假设它只是发给未来的自己看。`,
+        fallback: task => `先写一句解除咒语：这不是终稿，这只是「${task}」的试运行。`
+      },
+      comm: {
+        base: 54,
+        hint: '沟通延迟，把整个任务拖住了。',
+        explain: '很多任务并不难，难的是开口确认。拖着不问，会让后面所有动作一起卡住。',
+        twoMinute: task => `先起草一条 2 句确认消息，主题只围绕「${task}」最关键的那个待确认点。`,
+        sprint: task => `在 15 分钟内把「${task}」所有待确认问题列出来，只保留最值得现在问的 1 个。`,
+        fallback: task => `如果不想发出去，就先写成草稿。草稿也是推进「${task}」。`
+      },
+      missing: {
+        base: 60,
+        hint: '你缺的不是动力，是拼图块。',
+        explain: '资料缺口会让任务看起来像黑箱，所以你越想越不愿意开始。',
+        twoMinute: task => `先只列出完成「${task}」最少缺哪 3 个信息，不查资料也先把空位写出来。`,
+        sprint: task => `用 15 分钟只补齐「${task}」最关键的 1 个信息缺口，不要顺手扩散。`,
+        fallback: task => `把信息缺口显性化：写下「要继续做 ${task}，我还差 ___」。`
+      }
+    };
+
+    const examples = [
+      {
+        task: '回复一个拖了两天的重要消息', duration: '10', energy: 'low', blocker: 'fear',
+        notes: '我担心自己回得不够周全，所以一直不敢点开。'
+      },
+      {
+        task: '整理一个分享会 PPT 初稿', duration: '120', energy: 'mid', blocker: 'too_big',
+        notes: '内容其实有，但我一想到要组织结构就烦。'
+      },
+      {
+        task: '跟合作方确认需求边界', duration: '30', energy: 'mid', blocker: 'comm',
+        notes: '我知道得问，但总想再想清楚一点再发。'
+      }
+    ];
+
+    const els = {
+      task: document.getElementById('task'),
+      duration: document.getElementById('duration'),
+      energy: document.getElementById('energy'),
+      blocker: document.getElementById('blocker'),
+      notes: document.getElementById('notes'),
+      scoreLabel: document.getElementById('scoreLabel'),
+      scoreNumber: document.getElementById('scoreNumber'),
+      meterFill: document.getElementById('meterFill'),
+      frictionHint: document.getElementById('frictionHint'),
+      results: document.getElementById('results')
+    };
+
+    function calculateScore() {
+      const rule = blockerRules[els.blocker.value];
+      let score = rule.base;
+      if (els.duration.value === '120') score += 12;
+      if (els.duration.value === '60') score += 6;
+      if (els.energy.value === 'low') score += 8;
+      if (els.energy.value === 'high') score -= 6;
+      const noteLen = els.notes.value.trim().length;
+      if (noteLen > 60) score += 4;
+      return Math.max(18, Math.min(92, score));
+    }
+
+    function scoreLabel(score) {
+      if (score < 35) return '低阻力';
+      if (score < 55) return '中等阻力';
+      if (score < 75) return '中高阻力';
+      return '高阻力';
+    }
+
+    function buildResults() {
+      const task = els.task.value.trim() || '这个任务';
+      const score = calculateScore();
+      const rule = blockerRules[els.blocker.value];
+      const label = scoreLabel(score);
+
+      els.scoreLabel.textContent = label;
+      els.scoreNumber.textContent = score;
+      els.meterFill.style.width = score + '%';
+      els.frictionHint.innerHTML = `
+        <div>• ${rule.hint}</div>
+        <div>• ${rule.explain}</div>
+      `;
+
+      const rescue = score >= 72
+        ? '建议先做“保底动作”，把任务从心理阴影拖回现实。'
+        : '建议直接做 2 分钟启动动作，先把轮子滚起来。';
+
+      els.results.innerHTML = `
+        <div class="result-card">
+          <h3>2 分钟启动动作</h3>
+          <p>${rule.twoMinute(task)}</p>
+        </div>
+        <div class="result-card">
+          <h3>15 分钟冲刺版本</h3>
+          <p>${rule.sprint(task)}</p>
+        </div>
+        <div class="result-card">
+          <h3>如果还是不想做</h3>
+          <p>${rule.fallback(task)}</p>
+        </div>
+        <div class="result-card">
+          <h3>扫描结论</h3>
+          <ul>
+            <li>任务：${task}</li>
+            <li>摩擦分：${score} / 100（${label}）</li>
+            <li>建议：${rescue}</li>
+          </ul>
+        </div>
+      `;
+    }
+
+    document.getElementById('scanBtn').addEventListener('click', buildResults);
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      const example = examples[Math.floor(Math.random() * examples.length)];
+      els.task.value = example.task;
+      els.duration.value = example.duration;
+      els.energy.value = example.energy;
+      els.blocker.value = example.blocker;
+      els.notes.value = example.notes;
+      buildResults();
+    });
+
+    buildResults();
+  </script>
+</body>
+</html>

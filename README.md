@@ -23,4 +23,9 @@
 - 目录：`projects/idea_2026_03_14_web_emotion_thermometer/`
 - 说明：把网页文案或任意文本快速判断成“冷静解释 / 营销洗脑 / 情绪裹挟”，并给出命中信号与阅读建议。
 
+## 2026-03-15
+- 今日创意冲刺选题：**任务摩擦扫描仪**
+- 目录：`projects/idea_2026_03_15_task_friction_scanner/`
+- 说明：输入一个卡住的任务后，快速判断阻力来自哪里，并生成 2 分钟启动动作、15 分钟冲刺版本和保底动作。
+
 <!-- commit identity check: XiaoXiaoYu -->
