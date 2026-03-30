@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 截图吐槽机</title>
+  <style>
+    :root {
+      --bg: #0c1020;
+      --card: rgba(19, 26, 49, 0.86);
+      --line: rgba(138, 166, 255, 0.16);
+      --text: #eff3ff;
+      --muted: #aab6df;
+      --accent: #8fd3ff;
+      --accent2: #a6ffbf;
+      --hot: #ffb29c;
+      --shadow: 0 20px 50px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(118, 171, 255, 0.20), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(166, 255, 191, 0.14), transparent 24%),
+        linear-gradient(135deg, #070a14, var(--bg));
+      padding:24px;
+    }
+    .wrap{max-width:1160px; margin:0 auto; display:grid; gap:20px}
+    .hero,.panel{background:var(--card); border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow); backdrop-filter: blur(10px)}
+    .hero{padding:28px}
+    .tag{display:inline-flex; padding:6px 10px; border-radius:999px; background:rgba(143,211,255,.1); color:var(--accent2); font-size:12px}
+    h1{margin:14px 0 10px; font-size:clamp(28px,4vw,48px); line-height:1.08}
+    .sub{margin:0; color:var(--muted); max-width:760px; line-height:1.7}
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+    .panel{padding:22px}
+    .upload{
+      border:1.5px dashed rgba(143,211,255,.35); border-radius:18px; padding:18px; text-align:center;
+      background:rgba(255,255,255,.02)
+    }
+    .upload input{display:block; margin:0 auto 12px}
+    .preview{
+      margin-top:16px; min-height:280px; border-radius:18px; overflow:hidden; background:rgba(255,255,255,.03);
+      display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.06)
+    }
+    .preview img{max-width:100%; max-height:460px; display:block}
+    textarea, button, select{
+      width:100%; border-radius:16px; border:1px solid rgba(143,211,255,.18); background:rgba(8,12,24,.74);
+      color:var(--text); padding:14px 16px; font-size:15px; outline:none
+    }
+    textarea{min-height:120px; resize:vertical; line-height:1.6}
+    button{cursor:pointer; font-weight:800; background:linear-gradient(135deg,var(--accent),#6fb4ff); color:#081625; border:none; box-shadow:0 10px 24px rgba(111,180,255,.28)}
+    .stack{display:grid; gap:14px}
+    .chips{display:flex; gap:10px; flex-wrap:wrap}
+    .chip{padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.05); color:var(--muted); font-size:13px; border:1px solid rgba(255,255,255,.06)}
+    .roasts{display:grid; gap:12px; margin-top:14px}
+    .card{padding:16px; border-radius:18px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06)}
+    .card h3{margin:0 0 8px; font-size:15px; color:var(--accent2)}
+    .card p{margin:0; line-height:1.75}
+    .footer{font-size:13px; color:var(--muted); text-align:center; padding-bottom:6px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} body{padding:16px} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="tag">Playground · 2026-03-30 · 轻量原型</div>
+      <h1>AI 截图吐槽机</h1>
+      <p class="sub">上传一张界面截图，它不会真的识别图片内容，但会根据你补充的页面类型与目标，自动生成 3 条“又毒又建设性”的产品点评。适合做灵感热身、UI review 开场白、或者快速找到最值得改的地方。</p>
+    </section>
+
+    <section class="grid">
+      <div class="panel stack">
+        <div class="upload">
+          <input type="file" id="imageInput" accept="image/*" />
+          <div>上传一张截图，右侧会给你出吐槽。</div>
+        </div>
+        <div class="preview" id="preview">截图预览区</div>
+        <div class="chips">
+          <div class="chip">适合：Landing Page / App / Dashboard / 海报</div>
+          <div class="chip">风格：毒舌但不恶意</div>
+          <div class="chip">目标：指出最值得改的地方</div>
+        </div>
+      </div>
+
+      <div class="panel stack">
+        <select id="pageType">
+          <option value="landing">落地页 / 官网首页</option>
+          <option value="app">App 界面</option>
+          <option value="dashboard">Dashboard / 后台</option>
+          <option value="poster">海报 / 宣传图</option>
+          <option value="other">其他</option>
+        </select>
+        <textarea id="goal" placeholder="补充一句：这张图想达成什么？例如：想让用户更快注册、想更高级、想更像一个靠谱产品。">想让第一次看到的人 5 秒内明白这是做什么的，并愿意点按钮。</textarea>
+        <button id="roastBtn">生成 3 条吐槽点评</button>
+        <div class="roasts" id="roasts"></div>
+      </div>
+    </section>
+
+    <div class="footer">这是一版启发式原型：重点是快速给出“可改进的犀利反馈”，不是严肃视觉评测。</div>
+  </div>
+
+  <script>
+    const presets = {
+      landing: [
+        ['第一眼像在努力说很多话，但没有一句真正在抢主语。', '建议把首屏压缩成“你是谁 + 你解决什么 + 一个动作按钮”，别让用户自己做信息考古。'],
+        ['按钮像存在了，但不够像“现在就该点它”。', '把主 CTA 做得更明确：颜色更聚焦、文案更具体，比如“立即试用”优于“了解更多”。'],
+        ['页面情绪挺满，但信任感有点悬空。', '补一块真实证据：客户名、结果数字、产品截图，别只靠形容词撑场面。']
+      ],
+      app: [
+        ['这个界面像很忙，但不确定在忙正事。', '把最核心动作抬到视觉中心，次要信息降噪，否则用户会先累再理解。'],
+        ['层级不是没有，是每一层都想赢。', '减少同时高亮的元素数量，给用户一个明确的阅读顺序。'],
+        ['功能很多的感觉传达到了，但“下一步做什么”还不够直接。', '加一个更像教练的引导区，让新用户知道第一步应该点哪里。']
+      ],
+      dashboard: [
+        ['信息量看着挺值钱，但洞察感还没出来。', '别只堆指标，突出一个最值得被看到的异常或机会，让人一眼知道“今天该管什么”。'],
+        ['卡片很多，像在开会；结论不多，像还没开完。', '把相关指标打包成模块，并给每个模块一个一句话结论。'],
+        ['这不是难看，是“有点像所有后台”。', '如果要提高高级感，先统一留白、字体层级和状态色，别让风格各打各的。']
+      ],
+      poster: [
+        ['视觉很努力，但主信息的夺冠优势还不够。', '让最重要的 1 句话更大、更短、更靠前，别让它和装饰元素平起平坐。'],
+        ['它在吸引注意力，但还没决定吸引到哪。', '先明确用户看完后要记住什么，再把其他元素都当配角。'],
+        ['现在这张图更像“素材集合”，还不像“立场鲜明的传播物”。', '减少装饰层，给主标题和行动点留出生存空间。']
+      ],
+      other: [
+        ['看得出你在认真表达，但主线还不够锋利。', '先问一句：这张图最想让人做什么？然后把一切都围绕那个动作重排。'],
+        ['不是信息不够，是重点不够残忍。', '删掉 20% 次要元素，主信息会立刻更有气场。'],
+        ['它已经能看，但还没到“想转发/想点击”的级别。', '补一个更强的对比：前后变化、用户收益或风险提醒。']
+      ]
+    };
+
+    const preview = document.getElementById('preview');
+    const imageInput = document.getElementById('imageInput');
+    const pageType = document.getElementById('pageType');
+    const goal = document.getElementById('goal');
+    const roasts = document.getElementById('roasts');
+
+    imageInput.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        preview.innerHTML = `<img src="${ev.target.result}" alt="上传预览" />`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function renderRoasts() {
+      const type = pageType.value;
+      const items = presets[type] || presets.other;
+      const userGoal = goal.value.trim() || '让用户更容易理解并行动';
+      roasts.innerHTML = items.map(([line, fix], idx) => `
+        <div class="card">
+          <h3>吐槽 ${idx + 1}</h3>
+          <p><strong>${line}</strong></p>
+          <p style="margin-top:8px;color:var(--muted)">建设性建议：${fix}</p>
+          <p style="margin-top:8px;color:var(--hot)">结合你的目标「${userGoal}」来看，这一条最值得优先修。</p>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('roastBtn').addEventListener('click', renderRoasts);
+    renderRoasts();
+  </script>
+</body>
+</html>
