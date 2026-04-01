@@ -34,4 +34,10 @@
 - 目录：`projects/idea_2026_03_30_ai_screenshot_roast/`
 - 说明：上传截图后，根据页面类型和目标生成 3 条毒舌但建设性的产品点评。
 
+## 2026-04-01
+- 今日创意冲刺：23:00 发出 5 个 ideas，23:30 因用户未选择，自动补全执行
+- 自选实现：**网页冷启动体检器**
+- 目录：`projects/idea_2026_04_01_landing_page_cold_start_checker/`
+- 说明：输入网址或页面描述，快速得到第一印象、转化阻碍和 3 条可立即优化建议。
+
 <!-- commit identity check: XiaoXiaoYu -->

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>网页冷启动体检器</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(11, 25, 44, 0.86);
+      --panel-2: rgba(20, 40, 66, 0.9);
+      --line: rgba(132, 198, 255, 0.18);
+      --text: #eaf5ff;
+      --muted: #9bb7d1;
+      --accent: #6ed6ff;
+      --accent-2: #7bffbf;
+      --warn: #ffb86c;
+      --danger: #ff7c7c;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(110, 214, 255, 0.18), transparent 35%),
+        linear-gradient(180deg, #08111f 0%, #0b1728 48%, #08101d 100%);
+      color: var(--text);
+      padding: 32px 18px 48px;
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(110, 214, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.08;
+    }
+    .lead {
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 780px;
+      margin: 0 0 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+    .panel { padding: 22px; }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(132, 198, 255, 0.2);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      outline: none;
+    }
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    input { margin-bottom: 12px; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #062034;
+    }
+    .ghost {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .score {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 12px 0 18px;
+    }
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 28px;
+      font-weight: 800;
+    }
+    .section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .section h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .note {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      background: rgba(255, 184, 108, 0.08);
+      color: #ffd8af;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      .score { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">⚡ Playground MVP · 启发式体验版</div>
+      <h1>网页冷启动体检器</h1>
+      <p class="lead">
+        输入一个网址或页面/产品描述，我会用一组透明、固定的前端启发式规则，快速给出
+        <strong>第一印象</strong>、<strong>转化阻碍</strong> 和 <strong>可立即优化的 3 处</strong>。
+        这不是实际抓取网页的审计器，而是一个用来做冷启动诊断的轻量 playground。
+      </p>
+      <div class="meta">
+        <span class="chip">无后端</span>
+        <span class="chip">不抓网页内容</span>
+        <span class="chip">适合快速过一遍 landing page 文案思路</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">可以直接贴 URL，也可以直接描述页面主文案、目标用户和 CTA。描述越具体，结果越有参考价值。</div>
+        <input id="urlInput" type="text" placeholder="可选：例如 https://your-product.com" />
+        <textarea id="descInput" placeholder="把你的 landing page 核心文案贴这里，比如：我们是一个帮独立开发者快速生成产品截图和定价页的 AI 工具，主打 5 分钟上线，支持一键导出...\n\n也可以补充：目标用户是谁？主要 CTA 是什么？"></textarea>
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始体检</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>诊断结果</h2>
+        <p class="empty">还没开始。填一点内容后点「开始体检」，这里会出现你的冷启动诊断。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const resultPanel = document.getElementById('resultPanel');
+    const urlInput = document.getElementById('urlInput');
+    const descInput = document.getElementById('descInput');
+
+    const demoText = `我们做了一个 AI 驱动的出海独立站文案优化工具，帮助小团队在 10 分钟内生成首页 hero、功能区文案和 CTA 按钮方案。目标用户是没有专职市场团队的 SaaS 创业者。现在的主按钮是“立即体验”，副按钮是“查看案例”。我们强调省时间、提升注册转化，但页面里还没有明确展示案例数据和价格信息。`;
+
+    function clamp(num, min, max) {
+      return Math.max(min, Math.min(max, num));
+    }
+
+    function includesAny(text, list) {
+      return list.some(item => text.includes(item));
+    }
+
+    function analyze(url, desc) {
+      const text = `${url} ${desc}`.trim();
+      const normalized = text.toLowerCase();
+      const len = desc.trim().length;
+
+      const hasCTA = includesAny(normalized, ['立即', '免费', '开始', '注册', '预约', '咨询', '试用', '体验', '购买', 'book', 'start', 'signup', 'trial', 'demo']);
+      const hasAudience = includesAny(desc, ['用户', '适合', '面向', '创业者', '团队', '开发者', '品牌', '商家', '创作者', '独立开发者']);
+      const hasProof = includesAny(desc, ['案例', '客户', '数据', '%', '增长', '节省', '转化', 'ROI', '评价', '见证']);
+      const hasUrgency = includesAny(desc, ['立刻', '马上', '今天', '现在', '限时', '本周']);
+      const hasPrice = includesAny(desc, ['价格', '套餐', '￥', '元', '$', '免费版', '试用期']);
+      const hasOutcome = includesAny(desc, ['提升', '节省', '增长', '减少', '更快', '效率', '结果', '转化']);
+      const hasFeatureStacking = (desc.match(/、|，|,|\/|\+/g) || []).length > 10;
+      const mentionsHow = includesAny(desc, ['如何', '流程', '步骤', '一键', '上传', '生成', '导出', '配置']);
+
+      let clarity = 52;
+      let conversion = 48;
+      let trust = 46;
+
+      if (len > 50) clarity += 8;
+      if (len > 140) clarity += 6;
+      if (hasAudience) clarity += 10;
+      if (hasOutcome) clarity += 12;
+      if (mentionsHow) clarity += 6;
+      if (hasFeatureStacking) clarity -= 8;
+
+      if (hasCTA) conversion += 14;
+      if (hasUrgency) conversion += 6;
+      if (hasPrice) conversion += 8;
+      if (hasProof) conversion += 8;
+      if (!hasCTA) conversion -= 10;
+
+      if (hasProof) trust += 18;
+      if (hasPrice) trust += 6;
+      if (url && /^https?:\/\//i.test(url)) trust += 4;
+      if (!hasProof) trust -= 8;
+      if (len < 80) trust -= 6;
+
+      clarity = clamp(clarity, 20, 96);
+      conversion = clamp(conversion, 18, 94);
+      trust = clamp(trust, 15, 95);
+
+      const firstImpression = [];
+      const blockers = [];
+      const fixes = [];
+
+      if (clarity >= 72) {
+        firstImpression.push('页面主价值点相对明确，读者能较快知道你在卖什么。');
+      } else if (clarity >= 58) {
+        firstImpression.push('大方向能看懂，但“到底为谁解决什么问题”还不够一眼明白。');
+      } else {
+        firstImpression.push('第一屏信息偏模糊，用户需要自己拼凑你是谁、能带来什么。');
+      }
+
+      if (conversion >= 68) {
+        firstImpression.push('存在一定行动引导，适合继续优化按钮前后的动机链路。');
+      } else {
+        firstImpression.push('转化动作偏弱，用户即使感兴趣，也未必知道下一步该做什么。');
+      }
+
+      if (!hasAudience) blockers.push('没有明确点出目标用户，容易让访客产生“这是不是给别人用的”迟疑。');
+      if (!hasCTA) blockers.push('缺少清晰 CTA，页面缺一个明确的“下一步”。');
+      if (!hasProof) blockers.push('缺少案例、数据或信任背书，新访客较难快速建立安全感。');
+      if (!hasPrice) blockers.push('没有价格或门槛信息，用户会默认成本可能很高，转化意愿下降。');
+      if (hasFeatureStacking) blockers.push('功能点堆叠较多，核心卖点容易被淹没。');
+      if (!mentionsHow) blockers.push('只说结果，不说路径，容易让人怀疑落地方式是否真实可行。');
+      if (blockers.length === 0) blockers.push('整体结构已经比较健康，现在更像是“细节优化题”，不是根本性重做。');
+
+      if (!hasAudience) fixes.push('把 hero 改成“给谁 + 解决什么 + 多快见效”的一句话，例如：给独立开发者的 10 分钟 landing page 文案优化器。');
+      else fixes.push('把目标用户写得更锋利一些，避免过泛，比如把“小团队”细化成“没有市场团队的 SaaS 创业者”。');
+
+      if (!hasProof) fixes.push('在首屏下方立刻补一个证据区：案例截图、转化提升数据、用户评价三选一都比没有强。');
+      else fixes.push('把现有案例/数据尽量前移到首屏附近，让信任建立发生得更早。');
+
+      if (!hasCTA) fixes.push('把按钮文案从泛泛的“了解更多”改成低摩擦动作，比如“免费生成首页文案”或“查看 3 个优化示例”。');
+      else fixes.push('给主 CTA 一个更具体的结果承诺，例如“10 分钟生成首页文案”比“立即体验”更强。');
+
+      return { clarity, conversion, trust, firstImpression, blockers, fixes };
+    }
+
+    function render(result) {
+      resultPanel.innerHTML = `
+        <h2>诊断结果</h2>
+        <div class="score">
+          <div class="card">
+            <div class="label">清晰度</div>
+            <div class="value">${result.clarity}</div>
+          </div>
+          <div class="card">
+            <div class="label">转化驱动力</div>
+            <div class="value">${result.conversion}</div>
+          </div>
+          <div class="card">
+            <div class="label">信任感</div>
+            <div class="value">${result.trust}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>第一印象</h3>
+          <ul>${result.firstImpression.map(item => `<li>${item}</li>`).join('')}</ul>
+        </div>
+
+        <div class="section">
+          <h3>转化阻碍</h3>
+          <ul>${result.blockers.map(item => `<li>${item}</li>`).join('')}</ul>
+        </div>
+
+        <div class="section">
+          <h3>可立即优化的 3 处</h3>
+          <ul>${result.fixes.map(item => `<li>${item}</li>`).join('')}</ul>
+        </div>
+
+        <div class="note">说明：这是基于输入文本的启发式诊断，不会自动抓取网页内容，也不能替代真实用户测试或数据分析。</div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const url = urlInput.value.trim();
+      const desc = descInput.value.trim();
+      if (!url && !desc) {
+        resultPanel.innerHTML = '<h2>诊断结果</h2><p class="empty">先贴一点内容呀。至少给我一个网址或一段描述，不然我只能对空气做增长诊断。</p>';
+        return;
+      }
+      render(analyze(url, desc));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      urlInput.value = 'https://example-saas.com';
+      descInput.value = demoText;
+      render(analyze(urlInput.value, descInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      urlInput.value = '';
+      descInput.value = '';
+      resultPanel.innerHTML = '<h2>诊断结果</h2><p class="empty">还没开始。填一点内容后点「开始体检」，这里会出现你的冷启动诊断。</p>';
+    });
+  </script>
+</body>
+</html>
