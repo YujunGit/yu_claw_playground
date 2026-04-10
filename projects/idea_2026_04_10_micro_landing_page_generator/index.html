@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一句话生成微型产品页</title>
+  <style>
+    :root {
+      --bg: #07131f;
+      --panel: rgba(10, 21, 38, 0.88);
+      --panel-2: rgba(19, 34, 57, 0.9);
+      --line: rgba(133, 211, 255, 0.16);
+      --text: #edf7ff;
+      --muted: #a2b9cf;
+      --accent: #78dcff;
+      --accent-2: #8effc8;
+      --shadow: 0 18px 64px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(120, 220, 255, 0.16), transparent 32%),
+        linear-gradient(180deg, #08111b 0%, #0a1626 46%, #08101b 100%);
+      padding: 30px 16px 42px;
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(120, 220, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.06;
+    }
+    .lead {
+      max-width: 820px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+    .panel {
+      padding: 22px;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    textarea, select, input {
+      width: 100%;
+      border: 1px solid rgba(133, 211, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+    }
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    select, input {
+      margin-bottom: 12px;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      color: #062033;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .output {
+      display: grid;
+      gap: 16px;
+    }
+    .canvas {
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(160deg, rgba(11, 24, 43, 0.98), rgba(8, 16, 29, 0.98));
+    }
+    .landing {
+      padding: 28px;
+    }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+    .mini-tag {
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: var(--accent);
+      background: rgba(120, 220, 255, 0.08);
+      font-size: 12px;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--accent);
+      font-size: 13px;
+    }
+    .headline {
+      font-size: clamp(32px, 4vw, 50px);
+      line-height: 1.04;
+      margin: 0 0 14px;
+    }
+    .subheadline {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 16px;
+      margin: 0 0 18px;
+    }
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .cta-row a, .small-btn {
+      text-decoration: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cta-main {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #062033;
+    }
+    .cta-sub {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .proof span {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+    }
+    .mock {
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      padding: 18px;
+    }
+    .mock h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+    .metric {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .metric div {
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255,255,255,0.04);
+    }
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+    .feature-list, .copy-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .note-card {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
+    }
+    .note-card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+    .empty {
+      color: var(--muted);
+      line-height: 1.7;
+      padding: 8px 0 2px;
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid #ffd27d;
+      border-radius: 12px;
+      background: rgba(255, 210, 125, 0.08);
+      color: #ffe0a3;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero-grid, .notes { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🐟 Playground MVP · 文案生成实验台</div>
+      <h1>一句话生成微型产品页</h1>
+      <p class="lead">
+        给我一句产品想法，我会把它扩写成一版可直接拿去改的微型 landing page，含
+        hero 标题、副标题、3 个卖点、CTA、信任信号和简版页面骨架。
+        不是 AI 联网写作，而是一个透明、可控、适合快速起稿的前端生成器。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">一句话越具体越好，最好包含“给谁用、解决什么、为什么快/值/特别”。</div>
+        <textarea id="ideaInput" placeholder="例如：一个帮独立开发者把更新日志自动改写成像人写的一页式发版公告工具"></textarea>
+        <select id="toneSelect">
+          <option value="sharp">语气：清晰直接</option>
+          <option value="warm">语气：温柔可信</option>
+          <option value="bold">语气：有点锋利</option>
+        </select>
+        <input id="brandInput" type="text" placeholder="可选：产品名，例如 ClawLaunch" />
+        <div class="actions">
+          <button class="primary" id="generateBtn">生成页面</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">适合拿来做：产品首页第一稿、想法验证、发朋友前的快速文案整理。</div>
+      </section>
+
+      <section class="panel output" id="outputPanel">
+        <h2>生成结果</h2>
+        <p class="empty">还没开始。先丢一句产品想法过来，我来把它展开成一个能看的微型产品页。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const ideaInput = document.getElementById('ideaInput');
+    const toneSelect = document.getElementById('toneSelect');
+    const brandInput = document.getElementById('brandInput');
+    const outputPanel = document.getElementById('outputPanel');
+
+    const toneMap = {
+      sharp: {
+        eyebrow: '把价值讲明白，别绕',
+        verb: '更快推出',
+        cta: '立即生成一版',
+        sub: '先看页面骨架'
+      },
+      warm: {
+        eyebrow: '先把想法说清楚，再慢慢变成作品',
+        verb: '更轻松落地',
+        cta: '试着生成看看',
+        sub: '先看看示例'
+      },
+      bold: {
+        eyebrow: '别再空想，先给它一个能见人的首页',
+        verb: '更猛地上线',
+        cta: '现在就出一版',
+        sub: '看这个怎么写'
+      }
+    };
+
+    const demoIdea = '一个帮独立开发者把更新日志自动改写成像人写的一页式发版公告工具';
+
+    function pickBrand(raw) {
+      if (raw.trim()) return raw.trim();
+      const words = rawify(ideaInput.value).split(/\s+/).filter(Boolean);
+      if (words.length) {
+        return words[0].slice(0, 1).toUpperCase() + words[0].slice(1, 10);
+      }
+      return 'MicroPage';
+    }
+
+    function rawify(text) {
+      return (text || '').replace(/[，。！？,.!?:：]/g, ' ').trim();
+    }
+
+    function compactIdea(text) {
+      return rawify(text).replace(/\s+/g, ' ');
+    }
+
+    function inferAudience(text) {
+      const pairs = [
+        ['独立开发者', '独立开发者'],
+        ['开发者', '开发者'],
+        ['创作者', '内容创作者'],
+        ['运营', '运营同学'],
+        ['团队', '小团队'],
+        ['老板', '小老板'],
+        ['学生', '学生'],
+        ['产品', '产品团队']
+      ];
+      for (const [needle, label] of pairs) {
+        if (text.includes(needle)) return label;
+      }
+      return '想把点子快速讲清楚的人';
+    }
+
+    function inferProblem(text) {
+      if (text.includes('自动')) return '把重复而啰嗦的表达自动整理成能直接拿来用的页面';
+      if (text.includes('生成')) return '把模糊想法快速变成可展示的第一版';
+      if (text.includes('改写')) return '把原本难读的内容改成更像人话、更适合展示的版本';
+      return '把零散灵感压缩成一页能看懂的产品表达';
+    }
+
+    function inferOutcome(text) {
+      if (text.includes('更新日志')) return '每次发版都能更体面地对外讲清楚';
+      if (text.includes('文案')) return '更快得到一版能发出去的文案';
+      return '更快把一个点子做成能展示的页面';
+    }
+
+    function buildFeatures(text) {
+      const base = [
+        '自动生成 hero 标题、副标题和 CTA',
+        '给出 3 个卖点和 1 组信任信号文案',
+        '输出一版适合继续手改的页面骨架'
+      ];
+      if (text.includes('更新日志')) base[1] = '把更新日志、版本说明重写成对外更友好的卖点文案';
+      if (text.includes('截图')) base[2] = '补出适合配图、卡片区和示例展示的页面结构';
+      return base;
+    }
+
+    function buildProof(text, audience) {
+      return [
+        '5 分钟内得到第一版页面文案',
+        `为${audience}这种“想法很多、时间很少”的场景而写`,
+        text.includes('自动') ? '适合高频重复表达的内容场景' : '适合点子验证和早期展示'
+      ];
+    }
+
+    function generateLanding(idea, tone, brand) {
+      const trimmed = compactIdea(idea);
+      const audience = inferAudience(trimmed);
+      const problem = inferProblem(trimmed);
+      const outcome = inferOutcome(trimmed);
+      const style = toneMap[tone];
+      const cleanBrand = brand || 'MicroPage';
+      const headline = `${cleanBrand}，让${audience}${style.verb}`;
+      const subheadline = `把“${trimmed}”这类想法，快速整理成一版清楚、可信、能让人继续看下去的产品页。它重点解决的是：${problem}，最后帮你达到 ${outcome}。`;
+      const features = buildFeatures(trimmed);
+      const proof = buildProof(trimmed, audience);
+      const heroBullets = [
+        `适合 ${audience}`,
+        '先出第一版，再继续精修',
+        '不用后端，不用等设计稿'
+      ];
+      const copyHints = [
+        `一句话定位：给${audience}的 ${trimmed}`,
+        `核心结果：${outcome}`,
+        '主 CTA 建议写成结果承诺，而不是空泛按钮'
+      ];
+      return { cleanBrand, headline, subheadline, features, proof, heroBullets, copyHints, style };
+    }
+
+    function render(data) {
+      outputPanel.innerHTML = `
+        <h2>生成结果</h2>
+        <div class="canvas">
+          <div class="landing">
+            <div class="nav">
+              <div class="brand">${data.cleanBrand}</div>
+              <div class="mini-tag">微型产品页草稿</div>
+            </div>
+            <div class="hero-grid">
+              <div>
+                <div class="eyebrow">${data.style.eyebrow}</div>
+                <h3 class="headline">${data.headline}</h3>
+                <p class="subheadline">${data.subheadline}</p>
+                <div class="cta-row">
+                  <a href="#" class="cta-main">${data.style.cta}</a>
+                  <a href="#" class="cta-sub">${data.style.sub}</a>
+                </div>
+                <div class="proof">${data.proof.map(item => `<span>${item}</span>`).join('')}</div>
+              </div>
+              <div class="mock">
+                <h3>页面速览</h3>
+                <div class="metric">
+                  <div><strong>1 句</strong><span>先讲清定位</span></div>
+                  <div><strong>3 个</strong><span>核心卖点</span></div>
+                  <div><strong>2 个</strong><span>CTA 动作</span></div>
+                  <div><strong>1 屏</strong><span>就能给人看</span></div>
+                </div>
+                <ul class="feature-list">${data.features.map(item => `<li>${item}</li>`).join('')}</ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="notes">
+          <div class="note-card">
+            <h3>建议卖点</h3>
+            <ul class="copy-list">${data.heroBullets.map(item => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="note-card">
+            <h3>你可以继续改的文案提示</h3>
+            <ul class="copy-list">${data.copyHints.map(item => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      const idea = ideaInput.value.trim();
+      if (!idea) {
+        outputPanel.innerHTML = '<h2>生成结果</h2><p class="empty">先给我一句产品想法呀，不然我只能对着空气写 landing page。</p>';
+        return;
+      }
+      const brand = brandInput.value.trim() || 'MicroPage';
+      render(generateLanding(idea, toneSelect.value, brand));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      ideaInput.value = demoIdea;
+      brandInput.value = 'LaunchNote';
+      toneSelect.value = 'sharp';
+      render(generateLanding(ideaInput.value, toneSelect.value, brandInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      ideaInput.value = '';
+      brandInput.value = '';
+      toneSelect.value = 'sharp';
+      outputPanel.innerHTML = '<h2>生成结果</h2><p class="empty">还没开始。先丢一句产品想法过来，我来把它展开成一个能看的微型产品页。</p>';
+    });
+  </script>
+</body>
+</html>
