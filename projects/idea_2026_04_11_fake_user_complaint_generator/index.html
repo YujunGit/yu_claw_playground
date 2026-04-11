@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>假装用户吐槽生成器</title>
+  <style>
+    :root {
+      --bg: #09121d;
+      --panel: rgba(13, 24, 39, 0.9);
+      --panel-2: rgba(20, 36, 58, 0.92);
+      --line: rgba(138, 203, 255, 0.16);
+      --text: #edf7ff;
+      --muted: #9db3c8;
+      --accent: #75d6ff;
+      --accent-2: #8bffc4;
+      --warn: #ffb86d;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.36);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(117, 214, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #08111b 0%, #0a1524 48%, #08101a 100%);
+      padding: 30px 16px 48px;
+    }
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(117, 214, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.06;
+    }
+    .lead {
+      max-width: 840px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 410px 1fr;
+      gap: 20px;
+    }
+    .panel {
+      padding: 22px;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    textarea, input, select {
+      width: 100%;
+      border: 1px solid rgba(138, 203, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+    }
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    input, select {
+      margin-bottom: 12px;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      color: #062033;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      border-radius: 12px;
+      background: rgba(255, 184, 109, 0.08);
+      color: #ffd9b0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+    .complaint {
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 16px;
+    }
+    .complaint-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .tone {
+      display: inline-flex;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--accent);
+      background: rgba(117, 214, 255, 0.08);
+    }
+    .complaint p {
+      margin: 0;
+      line-height: 1.75;
+      color: var(--text);
+    }
+    .analysis {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .summary {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .summary-card {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
+    }
+    .summary-card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+    .summary-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    @media (max-width: 920px) {
+      .grid, .summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🎭 Playground MVP · 反向需求发现器</div>
+      <h1>假装用户吐槽生成器</h1>
+      <p class="lead">
+        输入一个产品、功能或页面描述，我会模拟 5 条“像真实用户会说出来”的吐槽，
+        帮你提前暴露模糊点、阻力点和最容易挨骂的地方。不是恶意喷人，而是把用户心里那句没说出口的话先挖出来。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">越具体越准，最好包含目标用户、功能、使用场景和你想让用户做的动作。</div>
+        <textarea id="ideaInput" placeholder="例如：一个帮小团队把会议录音自动整理成任务清单和跟进事项的网页工具，主打不用再手抄会议纪要。"></textarea>
+        <input id="audienceInput" type="text" placeholder="可选：目标用户，例如 小团队 / 独立开发者 / 运营同学" />
+        <select id="modeSelect">
+          <option value="balanced">吐槽强度：正常毒舌</option>
+          <option value="gentle">吐槽强度：相对温和</option>
+          <option value="spicy">吐槽强度：更尖一点</option>
+        </select>
+        <div class="actions">
+          <button class="primary" id="generateBtn">生成吐槽</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">适合在做 landing page、功能设计、MVP 方向判断前，先看看用户最可能挑什么刺。</div>
+      </section>
+
+      <section class="panel" id="outputPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先给我一个产品描述，我来替用户先吐槽一轮。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const ideaInput = document.getElementById('ideaInput');
+    const audienceInput = document.getElementById('audienceInput');
+    const modeSelect = document.getElementById('modeSelect');
+    const outputPanel = document.getElementById('outputPanel');
+
+    const demoText = '一个帮小团队把会议录音自动整理成任务清单和跟进事项的网页工具，主打不用再手抄会议纪要。';
+
+    const modeTone = {
+      gentle: ['困惑型', '犹豫型', '现实型', '担心型', '挑刺型'],
+      balanced: ['直球型', '不耐烦型', '现实型', '怀疑型', '产品经理附体型'],
+      spicy: ['嫌弃型', '火大型', '现实型', '怀疑型', '暴躁 PM 型']
+    };
+
+    function detectAudience(text, explicit) {
+      if (explicit.trim()) return explicit.trim();
+      const rules = [
+        ['独立开发者', '独立开发者'],
+        ['开发者', '开发者'],
+        ['小团队', '小团队'],
+        ['团队', '团队用户'],
+        ['运营', '运营同学'],
+        ['老板', '老板'],
+        ['学生', '学生']
+      ];
+      for (const [needle, label] of rules) {
+        if (text.includes(needle)) return label;
+      }
+      return '普通用户';
+    }
+
+    function detectBenefit(text) {
+      if (text.includes('自动')) return '自动化确实省事';
+      if (text.includes('整理')) return '整理能力看起来是核心卖点';
+      if (text.includes('生成')) return '生成速度可能是用户最先在意的';
+      return '方向看起来有一定效率价值';
+    }
+
+    function detectRisk(text) {
+      if (text.includes('录音')) return '准确率和隐私会马上被问';
+      if (text.includes('AI')) return '用户会追问它到底真有多智能';
+      if (text.includes('自动')) return '大家会担心结果不靠谱还得自己返工';
+      return '用户会先问这个东西到底比手动好在哪';
+    }
+
+    function generateComplaints(text, audience, mode) {
+      const benefit = detectBenefit(text);
+      const risk = detectRisk(text);
+      const tones = modeTone[mode];
+      const spice = mode === 'spicy';
+      const gentle = mode === 'gentle';
+
+      const complaints = [
+        {
+          tone: tones[0],
+          text: `你说得挺热闹，但我还是没看明白这到底比我现在的做法省了哪一步。${benefit}，可如果只是换个地方点按钮，我未必会买账。`,
+          why: '价值点不够具体，用户会先质疑“到底省了什么”。'
+        },
+        {
+          tone: tones[1],
+          text: `${audience}真正在乎的是结果，不是功能名词。你如果只说“自动”“智能”“一键”，听起来很像所有产品都在说的空话。${spice ? '说白了，我已经看烦了。' : ''}`,
+          why: '文案可能过于抽象，缺少结果承诺。'
+        },
+        {
+          tone: tones[2],
+          text: `如果我要花时间学习、配置、校对，那它就不算真帮我省事。${risk}，所以我第一反应不是兴奋，而是“这东西会不会让我多一道返工”。`,
+          why: '使用摩擦和结果可信度是早期最大阻力。'
+        },
+        {
+          tone: tones[3],
+          text: `我会立刻想问：凭什么信你？有没有案例、对比、样例输出，或者至少让我一眼看到前后差别。${gentle ? '没有也不是不能看，但说服力会弱很多。' : '没有这些，我就默认你在吹。'} `,
+          why: '缺少证据区时，用户天然会提高警惕。'
+        },
+        {
+          tone: tones[4],
+          text: `这个方向不是不能做，但现在更像一句想法，还不像一个“我愿意马上试”的产品。你最好直接告诉我：谁最该用、第一次上手会得到什么、为什么现在就值得点进去。`,
+          why: '需要更锋利的定位和更低摩擦的首个动作。'
+        }
+      ];
+
+      return complaints;
+    }
+
+    function render(complaints, audience) {
+      const painSummary = [
+        '定位还不够一眼明白',
+        '结果承诺不够具体',
+        '证据或示例不够',
+        '用户担心用了还要返工'
+      ];
+      const actionSummary = [
+        `把目标用户直接钉死成「${audience}」而不是泛泛而谈`,
+        '把“自动/智能”翻译成具体结果和节省的步骤',
+        '补 1 个真实输入输出示例',
+        '给一个最低摩擦 CTA，比如“先看示例结果”'
+      ];
+
+      outputPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="stack">
+          ${complaints.map(item => `
+            <div class="complaint">
+              <div class="complaint-head">
+                <strong>${item.tone}</strong>
+                <span class="tone">模拟用户吐槽</span>
+              </div>
+              <p>${item.text}</p>
+              <div class="analysis">为什么会这样想：${item.why}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="summary">
+          <div class="summary-card">
+            <h3>这轮主要暴露的问题</h3>
+            <ul>${painSummary.map(item => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="summary-card">
+            <h3>你下一步最该补的 4 件事</h3>
+            <ul>${actionSummary.map(item => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      const text = ideaInput.value.trim();
+      if (!text) {
+        outputPanel.innerHTML = '<h2>结果区</h2><p class="empty">先给我一点产品描述呀，不然我连用户该吐槽什么都编不出来。</p>';
+        return;
+      }
+      const audience = detectAudience(text, audienceInput.value);
+      render(generateComplaints(text, audience, modeSelect.value), audience);
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      ideaInput.value = demoText;
+      audienceInput.value = '小团队';
+      modeSelect.value = 'balanced';
+      const audience = detectAudience(ideaInput.value, audienceInput.value);
+      render(generateComplaints(ideaInput.value, audience, modeSelect.value), audience);
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      ideaInput.value = '';
+      audienceInput.value = '';
+      modeSelect.value = 'balanced';
+      outputPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先给我一个产品描述，我来替用户先吐槽一轮。</p>';
+    });
+  </script>
+</body>
+</html>

@@ -46,4 +46,10 @@
 - 目录：`projects/idea_2026_04_10_micro_landing_page_generator/`
 - 说明：输入一句产品想法，快速生成一版微型 landing page 草稿，含标题、副标题、CTA、卖点和信任信号。
 
+## 2026-04-11
+- 今日创意冲刺：23:00 发出 5 个 ideas，23:30 因用户未选择，自动补全执行
+- 自选实现：**假装用户吐槽生成器**
+- 目录：`projects/idea_2026_04_11_fake_user_complaint_generator/`
+- 说明：输入产品或功能描述，生成 5 条像真实用户会说出来的吐槽，并附带改进提示。
+
 <!-- commit identity check: XiaoXiaoYu -->
