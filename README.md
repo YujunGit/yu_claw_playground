@@ -52,4 +52,9 @@
 - 目录：`projects/idea_2026_04_11_fake_user_complaint_generator/`
 - 说明：输入产品或功能描述，生成 5 条像真实用户会说出来的吐槽，并附带改进提示。
 
+## 2026-04-12
+- 今日创意冲刺：用户选择了 **功能优先级吵架模拟器**
+- 目录：`projects/idea_2026_04_12_feature_priority_debate_simulator/`
+- 说明：输入 3 个候选功能，模拟产品、用户、工程三方争论，并给出 P1/P2/P3 的优先级建议。
+
 <!-- commit identity check: XiaoXiaoYu -->

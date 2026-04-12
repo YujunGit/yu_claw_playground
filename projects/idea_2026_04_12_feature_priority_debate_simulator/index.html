@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>功能优先级吵架模拟器</title>
+  <style>
+    :root {
+      --bg: #08121d;
+      --panel: rgba(12, 24, 40, 0.9);
+      --panel-2: rgba(19, 35, 58, 0.92);
+      --line: rgba(135, 205, 255, 0.16);
+      --text: #edf7ff;
+      --muted: #9eb6cb;
+      --accent: #75d8ff;
+      --accent-2: #94ffc7;
+      --pm: #7ad7ff;
+      --user: #8dffcb;
+      --eng: #ffbf77;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.36);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(117, 216, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #08111b 0%, #091523 48%, #08101a 100%);
+      padding: 30px 16px 48px;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(117, 216, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.06;
+    }
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+    .panel {
+      padding: 22px;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(135, 205, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      color: #062033;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid #ffd27c;
+      border-radius: 12px;
+      background: rgba(255, 210, 124, 0.08);
+      color: #ffe0a5;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .result-stack {
+      display: grid;
+      gap: 16px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .card {
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+    .card.pm { border-color: rgba(122, 215, 255, 0.26); }
+    .card.user { border-color: rgba(141, 255, 203, 0.24); }
+    .card.eng { border-color: rgba(255, 191, 119, 0.24); }
+    .role {
+      display: inline-flex;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .role.pm { background: rgba(122, 215, 255, 0.1); color: var(--pm); }
+    .role.user { background: rgba(141, 255, 203, 0.1); color: var(--user); }
+    .role.eng { background: rgba(255, 191, 119, 0.1); color: var(--eng); }
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+    .card p, .card ul {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .card ul { padding-left: 18px; }
+    .debate {
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .debate h3, .decision h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+    .bubble {
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      line-height: 1.7;
+      background: rgba(255,255,255,0.04);
+    }
+    .bubble strong { display: block; margin-bottom: 6px; }
+    .decision {
+      border-radius: 20px;
+      padding: 18px;
+      background: linear-gradient(160deg, rgba(117, 216, 255, 0.12), rgba(148, 255, 199, 0.08));
+      border: 1px solid rgba(117, 216, 255, 0.16);
+    }
+    .decision ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    @media (max-width: 980px) {
+      .grid, .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🧠 Playground MVP · 三方优先级争论机</div>
+      <h1>功能优先级吵架模拟器</h1>
+      <p class="lead">
+        输入 3 个候选功能，我会模拟 <strong>产品 / 用户 / 工程</strong> 三方各自会怎么吵，
+        然后给出一个相对务实的优先级建议。它不替代 roadmap，但很适合在想法很多、时间很少时，先把争论摊开讲明白。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">每个功能尽量写成“做什么 + 给谁/解决什么”的样子，这样模拟会更像回事。</div>
+        <textarea id="feature1" placeholder="功能 1，例如：支持把会议录音自动整理成待办事项"></textarea>
+        <textarea id="feature2" placeholder="功能 2，例如：支持团队成员在待办上协作评论"></textarea>
+        <textarea id="feature3" placeholder="功能 3，例如：支持把待办一键同步到飞书或 Notion"></textarea>
+        <input id="contextInput" type="text" placeholder="可选：当前阶段，例如 早期 MVP / 已有少量用户 / 目标是提高留存" />
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始吵架</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">适合做 MVP 取舍、版本计划、功能争论降温。先把大家会说的话外显出来，决策就容易多了。</div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先给 3 个功能，我来让产品、用户、工程先吵一架。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const feature1 = document.getElementById('feature1');
+    const feature2 = document.getElementById('feature2');
+    const feature3 = document.getElementById('feature3');
+    const contextInput = document.getElementById('contextInput');
+    const resultPanel = document.getElementById('resultPanel');
+
+    const demo = [
+      '支持把会议录音自动整理成待办事项',
+      '支持团队成员在待办上协作评论',
+      '支持把待办一键同步到飞书或 Notion'
+    ];
+
+    function scoreFeature(text, context) {
+      const full = `${text} ${context}`;
+      let userValue = 48;
+      let speed = 50;
+      let leverage = 46;
+
+      if (/[自动|一键|直接|立刻|快速]/.test(full)) userValue += 12;
+      if (/[同步|导出|分享|协作]/.test(full)) leverage += 10;
+      if (/[评论|权限|多人|团队]/.test(full)) speed -= 8;
+      if (/[AI|录音|识别|智能]/.test(full)) speed -= 10;
+      if (/[MVP|早期|验证]/.test(context)) {
+        if (/[自动|核心|首个]/.test(full)) speed += 6;
+        if (/[协作|权限|复杂]/.test(full)) speed -= 6;
+      }
+      if (/[留存|复用|工作流]/.test(context)) leverage += 8;
+
+      const total = userValue * 0.45 + speed * 0.3 + leverage * 0.25;
+      return {
+        userValue: Math.max(20, Math.min(95, userValue)),
+        speed: Math.max(20, Math.min(95, speed)),
+        leverage: Math.max(20, Math.min(95, leverage)),
+        total: Math.round(total)
+      };
+    }
+
+    function buildRankings(features, context) {
+      return features.map(text => ({ text, ...scoreFeature(text, context) }))
+        .sort((a, b) => b.total - a.total);
+    }
+
+    function render(rankings, context) {
+      const top = rankings[0];
+      const second = rankings[1];
+      const third = rankings[2];
+      const ctx = context.trim() || '当前上下文未额外说明，按一般早期产品判断';
+
+      resultPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="result-stack">
+          <div class="cards">
+            <div class="card pm">
+              <span class="role pm">产品视角</span>
+              <h3>先看用户感知和讲故事能力</h3>
+              <ul>
+                <li>最值得优先讲的是：<strong>${top.text}</strong></li>
+                <li>它最容易变成一句能讲清楚的价值主张</li>
+                <li>当前上下文：${ctx}</li>
+              </ul>
+            </div>
+            <div class="card user">
+              <span class="role user">用户视角</span>
+              <h3>先做最能立刻感到“有用”的</h3>
+              <ul>
+                <li>第一反应最强：<strong>${top.text}</strong></li>
+                <li>次优但可等一版：<strong>${second.text}</strong></li>
+                <li>最容易被问“现在真需要吗”：<strong>${third.text}</strong></li>
+              </ul>
+            </div>
+            <div class="card eng">
+              <span class="role eng">工程视角</span>
+              <h3>先做闭环最短、风险最可控的</h3>
+              <ul>
+                <li>最快验证价值：<strong>${top.text}</strong></li>
+                <li>实现复杂度较可能更高：<strong>${third.text}</strong></li>
+                <li>别一开始就把系统做重了</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="debate">
+            <h3>模拟吵架现场</h3>
+            <div class="bubble"><strong>产品：</strong>我们现在最缺的是一个用户一看就能懂的主卖点，所以 <strong>${top.text}</strong> 应该先上。没有这个，其他功能再完整也讲不明白。</div>
+            <div class="bubble"><strong>用户：</strong>我其实不关心你们功能树有多漂亮，我只想先看到一个东西真的帮我省时间或少做一步。就这一点来说，<strong>${top.text}</strong> 更像我会马上试的。</div>
+            <div class="bubble"><strong>工程：</strong>先别把系统做成巨型平台。${third.text} 这种更容易把边界拉大，先做会拖慢验证。我们应该先拿 <strong>${top.text}</strong> 做最小闭环。</div>
+            <div class="bubble"><strong>产品反驳：</strong>那 <strong>${second.text}</strong> 呢？它不是没价值，但更适合在核心价值被证明后再补，不然像在给一个还没站稳的东西加配件。</div>
+          </div>
+
+          <div class="decision">
+            <h3>最终建议优先级</h3>
+            <ul>
+              <li><strong>P1：</strong>${top.text}</li>
+              <li><strong>P2：</strong>${second.text}</li>
+              <li><strong>P3：</strong>${third.text}</li>
+              <li>建议先拿 P1 做一个最小可验证版本，再根据真实反馈决定 P2 是增强还是延后。</li>
+              <li>如果你当前阶段更偏“增长/留存”而不是“冷启动验证”，可以再手动提高与协作、同步、复用相关功能的优先级。</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const features = [feature1.value.trim(), feature2.value.trim(), feature3.value.trim()].filter(Boolean);
+      if (features.length < 3) {
+        resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">至少给我 3 个候选功能，不然这架吵不起来。</p>';
+        return;
+      }
+      render(buildRankings(features, contextInput.value.trim()), contextInput.value.trim());
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      feature1.value = demo[0];
+      feature2.value = demo[1];
+      feature3.value = demo[2];
+      contextInput.value = '早期 MVP，目标是先验证用户是否愿意持续使用';
+      render(buildRankings(demo, contextInput.value), contextInput.value);
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      feature1.value = '';
+      feature2.value = '';
+      feature3.value = '';
+      contextInput.value = '';
+      resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先给 3 个功能，我来让产品、用户、工程先吵一架。</p>';
+    });
+  </script>
+</body>
+</html>
