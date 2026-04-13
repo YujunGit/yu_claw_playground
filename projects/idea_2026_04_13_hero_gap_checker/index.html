@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>首页首屏信息缺口检查器</title>
+  <style>
+    :root {
+      --bg: #08121d;
+      --panel: rgba(12, 24, 40, 0.9);
+      --panel-2: rgba(19, 35, 58, 0.92);
+      --line: rgba(135, 205, 255, 0.16);
+      --text: #edf7ff;
+      --muted: #9eb6cb;
+      --accent: #75d8ff;
+      --accent-2: #94ffc7;
+      --good: #8dffc8;
+      --warn: #ffcf7c;
+      --bad: #ff8f8f;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.36);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(117, 216, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #08111b 0%, #091523 48%, #08101a 100%);
+      padding: 30px 16px 48px;
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(117, 216, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.06;
+    }
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+    .panel {
+      padding: 22px;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(135, 205, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      color: #062033;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      border-radius: 12px;
+      background: rgba(255, 207, 124, 0.08);
+      color: #ffe4a9;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .result-stack {
+      display: grid;
+      gap: 16px;
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .score-card {
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .score-card strong {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+    .checklist, .advice {
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .check-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .check-item:last-child { border-bottom: 0; }
+    .pill {
+      display: inline-flex;
+      min-width: 52px;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .ok { background: rgba(141, 255, 200, 0.12); color: var(--good); }
+    .mid { background: rgba(255, 207, 124, 0.12); color: var(--warn); }
+    .bad { background: rgba(255, 143, 143, 0.12); color: var(--bad); }
+    .text h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+    .text p, .advice ul {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .advice ul { padding-left: 18px; }
+    @media (max-width: 980px) {
+      .grid, .score-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🔍 Playground MVP · 首屏文案体检</div>
+      <h1>首页首屏信息缺口检查器</h1>
+      <p class="lead">
+        输入产品首页第一屏的标题、副标题、按钮或简短说明，我会快速判断这段文案里
+        有没有把 <strong>对象、结果、证据、动作</strong> 这些关键东西讲清楚，并指出最明显的信息缺口。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">直接把首页首屏文案贴进来就行。可以是一整段，也可以是标题 + 副标题 + CTA。</div>
+        <textarea id="heroInput" placeholder="例如：让独立开发者在 10 分钟内写出更能转化的 landing page 文案。上传你的产品描述，自动生成标题、副标题和 CTA。现在免费试用。"></textarea>
+        <input id="contextInput" type="text" placeholder="可选：产品背景，例如 AI 写作工具 / 面向独立开发者 / 冷启动阶段" />
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始检查</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">适合 landing page 初稿自检，也适合在发给别人前先快速看一眼“哪里还没说透”。</div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先贴一段首页首屏文案，我来帮你看它到底缺了什么。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const heroInput = document.getElementById('heroInput');
+    const contextInput = document.getElementById('contextInput');
+    const resultPanel = document.getElementById('resultPanel');
+
+    const demoText = '让独立开发者在 10 分钟内写出更能转化的 landing page 文案。上传你的产品描述，自动生成标题、副标题和 CTA。现在免费试用。';
+
+    function hasAny(text, words) {
+      return words.some(word => text.includes(word));
+    }
+
+    function analyze(text, context) {
+      const full = `${text} ${context}`;
+      const audience = hasAny(full, ['开发者', '团队', '商家', '创作者', 'SaaS', '独立']) ;
+      const outcome = hasAny(full, ['提升', '增长', '更快', '省', '节省', '转化', '写出', '生成', '完成']);
+      const proof = hasAny(full, ['案例', '数据', '%', '客户', '用户', '评价', '已经', '上百', '100+']);
+      const action = hasAny(full, ['试用', '开始', '立即', '注册', '预约', '上传', '体验', '查看']);
+      const timeframe = hasAny(full, ['分钟', '小时', '今天', '立刻', '马上']);
+      const mechanism = hasAny(full, ['上传', '输入', '自动', '生成', '同步', '分析']);
+
+      let clarity = 45;
+      let conversion = 45;
+      let trust = 40;
+
+      if (audience) clarity += 18;
+      if (outcome) clarity += 18;
+      if (mechanism) clarity += 8;
+      if (action) conversion += 18;
+      if (timeframe) conversion += 10;
+      if (proof) trust += 25;
+      if (timeframe) trust += 5;
+
+      const checks = [
+        {
+          name: '对象是否明确',
+          ok: audience,
+          desc: audience ? '看得出你在对谁说话。' : '还没明确说明这段文案到底是写给谁看的。'
+        },
+        {
+          name: '结果是否明确',
+          ok: outcome,
+          desc: outcome ? '用户大概能知道最终能得到什么。' : '缺少具体结果，用户容易只看见功能没看见收益。'
+        },
+        {
+          name: '动作是否明确',
+          ok: action,
+          desc: action ? '下一步该做什么还算清楚。' : '缺一个明确 CTA，用户可能会看完但不知道下一步。'
+        },
+        {
+          name: '证据是否存在',
+          ok: proof,
+          desc: proof ? '已有一些信任信号。' : '缺少案例、数据或其他可信证明，容易让人怀疑你是不是在吹。'
+        },
+        {
+          name: '路径是否讲清',
+          ok: mechanism,
+          desc: mechanism ? '大概知道这是怎么发生的。' : '只说结果不说过程，用户会怀疑是不是太虚。'
+        }
+      ];
+
+      const advice = [];
+      if (!audience) advice.push('把目标用户直接写进标题或副标题，例如“给独立开发者的…”');
+      if (!outcome) advice.push('把功能翻译成结果，例如“节省 30 分钟”或“更快写出首页文案”');
+      if (!proof) advice.push('补一个可信信号，哪怕只是样例输出、案例截图或用户数字');
+      if (!action) advice.push('把 CTA 改成明确动作，比如“免费试用”或“查看示例结果”');
+      if (!mechanism) advice.push('补一句“怎么做到”的解释，降低用户的不确定感');
+      if (advice.length === 0) advice.push('整体已经比较完整，可以继续优化语气、顺序和证据前置。');
+
+      return {
+        clarity: Math.min(95, clarity),
+        conversion: Math.min(95, conversion),
+        trust: Math.min(95, trust),
+        checks,
+        advice
+      };
+    }
+
+    function render(result) {
+      resultPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="result-stack">
+          <div class="score-grid">
+            <div class="score-card"><strong>${result.clarity}</strong>清晰度</div>
+            <div class="score-card"><strong>${result.conversion}</strong>动作驱动</div>
+            <div class="score-card"><strong>${result.trust}</strong>信任感</div>
+          </div>
+          <div class="checklist">
+            ${result.checks.map(item => `
+              <div class="check-item">
+                <span class="pill ${item.ok ? 'ok' : 'bad'}">${item.ok ? '已提到' : '缺口'}</span>
+                <div class="text">
+                  <h3>${item.name}</h3>
+                  <p>${item.desc}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="advice">
+            <h2>优先补这几件事</h2>
+            <ul>${result.advice.map(item => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const text = heroInput.value.trim();
+      if (!text) {
+        resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">先贴一点首页首屏文案呀，不然我没法判断它漏了什么。</p>';
+        return;
+      }
+      render(analyze(text, contextInput.value.trim()));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      heroInput.value = demoText;
+      contextInput.value = 'AI 写作工具，面向独立开发者，冷启动阶段';
+      render(analyze(heroInput.value, contextInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      heroInput.value = '';
+      contextInput.value = '';
+      resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先贴一段首页首屏文案，我来帮你看它到底缺了什么。</p>';
+    });
+  </script>
+</body>
+</html>

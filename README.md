@@ -57,4 +57,10 @@
 - 目录：`projects/idea_2026_04_12_feature_priority_debate_simulator/`
 - 说明：输入 3 个候选功能，模拟产品、用户、工程三方争论，并给出 P1/P2/P3 的优先级建议。
 
+## 2026-04-13
+- 今日创意冲刺：23:00 发出 5 个 ideas，23:30 因用户未选择，自动补全执行
+- 自选实现：**首页首屏信息缺口检查器**
+- 目录：`projects/idea_2026_04_13_hero_gap_checker/`
+- 说明：输入首页首屏文案，快速判断对象、结果、动作、证据和路径有没有讲清楚。
+
 <!-- commit identity check: XiaoXiaoYu -->
