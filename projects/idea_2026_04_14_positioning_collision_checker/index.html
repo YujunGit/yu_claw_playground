@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>产品定位撞车检查器</title>
+  <style>
+    :root {
+      --bg: #08121d;
+      --panel: rgba(12, 24, 40, 0.9);
+      --panel-2: rgba(19, 35, 58, 0.92);
+      --line: rgba(135, 205, 255, 0.16);
+      --text: #edf7ff;
+      --muted: #9eb6cb;
+      --accent: #75d8ff;
+      --accent-2: #94ffc7;
+      --warn: #ffcf7c;
+      --bad: #ff9191;
+      --good: #8dffc8;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.36);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(117, 216, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #08111b 0%, #091523 48%, #08101a 100%);
+      padding: 30px 16px 48px;
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(117, 216, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.06;
+    }
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+    .panel {
+      padding: 22px;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(135, 205, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      color: #062033;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      border-radius: 12px;
+      background: rgba(255, 207, 124, 0.08);
+      color: #ffe4a9;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .result-stack {
+      display: grid;
+      gap: 16px;
+    }
+    .score-card, .section {
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .score-card strong {
+      display: block;
+      font-size: 34px;
+      margin-bottom: 6px;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .chip.bad { color: var(--bad); background: rgba(255, 145, 145, 0.1); }
+    .chip.good { color: var(--good); background: rgba(141, 255, 200, 0.1); }
+    .section h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+    .section ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🧭 Playground MVP · 定位去同质化检查</div>
+      <h1>产品定位撞车检查器</h1>
+      <p class="lead">
+        输入一句产品定位语句，我会判断它是不是太像一堆别人也会说的话，
+        并指出常见的“撞车表达”、模糊区和更值得强化的差异点。适合在产品定位、首页标题、简介文案阶段快速自检。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">直接贴一句定位语句就行，比如“我们是面向中小团队的 AI 工作流平台”。也可以补一点背景。</div>
+        <textarea id="positioningInput" placeholder="例如：我们是面向中小团队的 AI 工作流平台，帮助企业提升协作效率。"></textarea>
+        <input id="contextInput" type="text" placeholder="可选：产品背景，例如 面向独立开发者 / AI 工具 / 冷启动阶段" />
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始检查</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">特别适合检查那些“看起来没错，但谁都可以这样说”的定位句。</div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先给我一句产品定位，我来看看它是不是撞车太严重。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const positioningInput = document.getElementById('positioningInput');
+    const contextInput = document.getElementById('contextInput');
+    const resultPanel = document.getElementById('resultPanel');
+
+    const demoText = '我们是面向中小团队的 AI 工作流平台，帮助企业提升协作效率。';
+
+    function includesAny(text, words) {
+      return words.some(word => text.includes(word));
+    }
+
+    function analyze(text, context) {
+      const full = `${text} ${context}`;
+      const vagueWords = ['平台', '赋能', '提升效率', '智能化', '一站式', '解决方案', '协同', '创新'];
+      const hasAudience = includesAny(full, ['开发者', '团队', '企业', '商家', '创作者', '中小团队', '独立']);
+      const hasSpecificAction = includesAny(full, ['写', '生成', '同步', '整理', '分析', '发布', '转化', '录音', '导出']);
+      const hasConcreteOutcome = includesAny(full, ['10 分钟', '减少', '节省', '更快', '提升转化', '完成', '自动']);
+      const collisions = vagueWords.filter(word => full.includes(word));
+      let score = 82 - collisions.length * 12;
+      if (!hasSpecificAction) score -= 12;
+      if (!hasConcreteOutcome) score -= 10;
+      if (!hasAudience) score -= 8;
+      score = Math.max(18, Math.min(92, score));
+
+      const problems = [];
+      const suggestions = [];
+      const strengths = [];
+
+      if (collisions.length) {
+        problems.push(`这句话里有明显的通用撞车词：${collisions.join('、')}。这些词本身不算错，但太多人都在用。`);
+        suggestions.push('尽量把“平台 / 解决方案 / 提升效率”换成更具体的动作或结果。');
+      }
+      if (!hasSpecificAction) {
+        problems.push('没有明确说产品具体做什么，读者可能知道方向，但不知道你到底帮他做了哪一步。');
+        suggestions.push('补上一个具体动作，比如“自动整理会议录音”或“把更新日志改成发布公告”。');
+      } else {
+        strengths.push('有一定动作描述，说明你不是完全空泛。');
+      }
+      if (!hasConcreteOutcome) {
+        problems.push('结果层不够具体，容易停留在“听起来不错”但不够有说服力。');
+        suggestions.push('加一个结果承诺，比如省多少时间、减少哪一步、提升哪种指标。');
+      } else {
+        strengths.push('已经提到了一些结果导向元素，方向是对的。');
+      }
+      if (!hasAudience) {
+        problems.push('对象不够锋利，像是谁都能套进去。');
+        suggestions.push('把用户对象写得更具体，比如“给独立开发者”或“给无专职运营的小团队”。');
+      } else {
+        strengths.push('目标对象大致可见，这比完全泛讲要好。');
+      }
+      if (!strengths.length) strengths.push('至少方向上还没有跑偏，现在主要问题是太像行业公版表达。');
+      if (!suggestions.length) suggestions.push('已经不算太撞车了，可以继续往“更短、更狠、更可记住”方向打磨。');
+
+      return { score, collisions, problems, strengths, suggestions };
+    }
+
+    function render(result) {
+      resultPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="result-stack">
+          <div class="score-card">
+            <strong>${result.score}</strong>
+            撞车风险分（越低越像“谁都能这么说”，越高越有差异感）
+            <div class="chip-row">
+              ${result.collisions.length
+                ? result.collisions.map(item => `<span class="chip bad">撞车词：${item}</span>`).join('')
+                : '<span class="chip good">暂未发现明显公版撞车词</span>'}
+            </div>
+          </div>
+          <div class="section">
+            <h3>主要问题</h3>
+            <ul>${result.problems.map(item => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>这句话还有哪些可取之处</h3>
+            <ul>${result.strengths.map(item => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>优先改这几件事</h3>
+            <ul>${result.suggestions.map(item => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const text = positioningInput.value.trim();
+      if (!text) {
+        resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">先给我一句定位语句呀，不然我没法判断它是不是撞车。</p>';
+        return;
+      }
+      render(analyze(text, contextInput.value.trim()));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      positioningInput.value = demoText;
+      contextInput.value = 'AI 工具，冷启动阶段';
+      render(analyze(positioningInput.value, contextInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      positioningInput.value = '';
+      contextInput.value = '';
+      resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先给我一句产品定位，我来看看它是不是撞车太严重。</p>';
+    });
+  </script>
+</body>
+</html>
