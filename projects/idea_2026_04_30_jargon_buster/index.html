@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>介绍文案去黑话器</title>
+  <style>
+    :root {
+      --bg: #09131d;
+      --panel: rgba(12, 25, 41, 0.9);
+      --panel-2: rgba(19, 36, 57, 0.95);
+      --line: rgba(146, 212, 255, 0.14);
+      --text: #eef7ff;
+      --muted: #9eb4c9;
+      --accent: #7ad7ff;
+      --accent-2: #9affc5;
+      --warn: #ffd084;
+      --bad: #ff9898;
+      --good: #99ffd0;
+      --shadow: 0 22px 72px rgba(0, 0, 0, 0.34);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(122, 215, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #08111a 0%, #0a1623 52%, #081019 100%);
+      padding: 30px 16px 46px;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero { padding: 28px; margin-bottom: 20px; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(122, 215, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.06;
+    }
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+    .panel { padding: 22px; }
+    .panel h2 { margin: 0 0 14px; font-size: 20px; }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(146, 212, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea {
+      min-height: 210px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      color: #062033;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      border-radius: 12px;
+      background: rgba(255, 208, 132, 0.08);
+      color: #ffe5af;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty { color: var(--muted); line-height: 1.7; }
+    .result-stack { display: grid; gap: 16px; }
+    .score-card, .section {
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .score-card strong {
+      display: block;
+      font-size: 34px;
+      margin-bottom: 6px;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .chip.bad { color: var(--bad); background: rgba(255, 152, 152, 0.1); }
+    .chip.good { color: var(--good); background: rgba(153, 255, 208, 0.1); }
+    .section h3 { margin: 0 0 12px; font-size: 18px; }
+    .section ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .rewrite {
+      white-space: pre-wrap;
+      line-height: 1.8;
+      color: var(--text);
+      background: rgba(122, 215, 255, 0.06);
+      border: 1px solid rgba(122, 215, 255, 0.12);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🧼 Playground MVP · 把介绍文案翻译成人话</div>
+      <h1>介绍文案去黑话器</h1>
+      <p class="lead">
+        输入一段产品介绍、功能描述或首页文案，我会快速识别其中的黑话、空话和抽象表达，
+        再帮你改写成更像真人会说、用户更容易听懂的版本。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">直接贴一段产品介绍就行。也可以补一点背景，比如“给谁用”“当前处于什么阶段”。</div>
+        <textarea id="copyInput" placeholder="例如：我们打造一站式 AI 协同平台，赋能团队实现高效增长与智能化运营。"></textarea>
+        <input id="contextInput" type="text" placeholder="可选：补充背景，例如 面向独立开发者 / 首页首屏 / 冷启动产品" />
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始翻译成人话</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">特别适合检查那些“听起来专业，但用户其实不知道你在说什么”的文案。</div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先给我一段介绍文案，我来看看里面到底有多少黑话。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const copyInput = document.getElementById('copyInput');
+    const contextInput = document.getElementById('contextInput');
+    const resultPanel = document.getElementById('resultPanel');
+
+    const demoText = '我们打造一站式 AI 协同平台，赋能团队实现高效增长与智能化运营。';
+
+    const jargonMap = [
+      { word: '一站式', plain: '把几个关键步骤放在一起' },
+      { word: '赋能', plain: '帮你更快完成' },
+      { word: '平台', plain: '工具' },
+      { word: '高效增长', plain: '更快拿到结果' },
+      { word: '智能化', plain: '自动完成一部分工作' },
+      { word: '协同', plain: '一起做事' },
+      { word: '解决方案', plain: '做法' },
+      { word: '生态', plain: '配套工具和合作方' },
+      { word: '闭环', plain: '从开始到结束都能完成' },
+      { word: '提效', plain: '省时间' },
+      { word: '降本', plain: '省钱' },
+      { word: '抓手', plain: '关键动作' }
+    ];
+
+    function includesAny(text, words) {
+      return words.some((word) => text.includes(word));
+    }
+
+    function rewritePlain(text) {
+      let rewritten = text;
+      jargonMap.forEach(({ word, plain }) => {
+        rewritten = rewritten.replaceAll(word, plain);
+      });
+
+      rewritten = rewritten
+        .replaceAll('帮助企业', '帮团队')
+        .replaceAll('助力企业', '帮团队')
+        .replaceAll('实现', '做到')
+        .replaceAll('打造', '做了一个')
+        .replaceAll('提供', '给你')
+        .replaceAll('用户', '你');
+
+      return rewritten;
+    }
+
+    function analyze(text, context) {
+      const full = `${text} ${context}`;
+      const hits = jargonMap.filter(({ word }) => full.includes(word));
+      const hasAudience = includesAny(full, ['开发者', '团队', '企业', '创作者', '商家', '运营', '独立']);
+      const hasAction = includesAny(full, ['写', '整理', '生成', '分析', '同步', '发布', '录音', '改写', '导出', '追踪']);
+      const hasOutcome = includesAny(full, ['省时间', '更快', '减少', '自动', '完成', '提高转化', '拿到结果', '节省']);
+
+      let score = 88 - hits.length * 10;
+      if (!hasAudience) score -= 8;
+      if (!hasAction) score -= 12;
+      if (!hasOutcome) score -= 10;
+      score = Math.max(12, Math.min(95, score));
+
+      const problems = [];
+      const strengths = [];
+      const suggestions = [];
+
+      if (hits.length) {
+        problems.push(`命中了这些常见黑话/空话：${hits.map((item) => item.word).join('、')}。`);
+        suggestions.push('优先把这些词换成“具体动作 + 具体结果”。');
+      }
+      if (!hasAudience) {
+        problems.push('没讲清楚到底是给谁用的，读者会觉得谁都能套。');
+        suggestions.push('补上更具体的对象，比如“给独立开发者”或“给没有专职运营的小团队”。');
+      } else {
+        strengths.push('目标对象大致可见，这比泛泛而谈要好。');
+      }
+      if (!hasAction) {
+        problems.push('没有明确说产品具体帮人做哪一步，所以会显得飘。');
+        suggestions.push('写清楚一个动作，例如“自动整理会议录音”或“把产品更新改成可发出的公告”。');
+      } else {
+        strengths.push('已经出现了部分动作词，说明文案不是完全空的。');
+      }
+      if (!hasOutcome) {
+        problems.push('结果层不够具体，容易停留在“听起来不错”。');
+        suggestions.push('补一个用户在意的结果，比如“少花 30 分钟”“少来回切工具”“更快发布”。');
+      } else {
+        strengths.push('已经有结果导向元素，方向是对的。');
+      }
+      if (!strengths.length) strengths.push('方向不算偏，主要问题是太像行业公版表达。');
+      if (!suggestions.length) suggestions.push('已经比较接地气了，可以再压短一点，让它更像口语。');
+
+      const rewritten = rewritePlain(text);
+      const rewriteLead = hasAudience
+        ? '翻译成人话版：'
+        : '先假设你是在讲一个给特定人群用的工具，人话版可以这样写：';
+
+      return {
+        score,
+        hits,
+        problems,
+        strengths,
+        suggestions,
+        plainVersion: `${rewriteLead}\n${rewritten}`
+      };
+    }
+
+    function render(result) {
+      resultPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="result-stack">
+          <div class="score-card">
+            <strong>${result.score}</strong>
+            黑话密度分（越低说明越像“听起来厉害但没说清楚”）
+            <div class="chip-row">
+              ${result.hits.length
+                ? result.hits.map((item) => `<span class="chip bad">黑话：${item.word}</span>`).join('')
+                : '<span class="chip good">这段文案里没有明显命中常见黑话词</span>'}
+            </div>
+          </div>
+          <div class="section">
+            <h3>用户可能听不懂的地方</h3>
+            <ul>${result.problems.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>还不错的地方</h3>
+            <ul>${result.strengths.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>翻译成人话版</h3>
+            <div class="rewrite">${result.plainVersion}</div>
+          </div>
+          <div class="section">
+            <h3>优先改这几件事</h3>
+            <ul>${result.suggestions.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const text = copyInput.value.trim();
+      if (!text) {
+        resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">先贴一段介绍文案呀，不然我没法帮你翻译成人话。</p>';
+        return;
+      }
+      render(analyze(text, contextInput.value.trim()));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      copyInput.value = demoText;
+      contextInput.value = '首页首屏，AI 工具，冷启动阶段';
+      render(analyze(copyInput.value, contextInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      copyInput.value = '';
+      contextInput.value = '';
+      resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先给我一段介绍文案，我来看看里面到底有多少黑话。</p>';
+    });
+  </script>
+</body>
+</html>
