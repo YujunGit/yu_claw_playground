@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>标题吸引力体检器</title>
+  <style>
+    :root {
+      --bg: #08111c;
+      --panel: rgba(12, 24, 40, 0.9);
+      --panel-2: rgba(18, 34, 57, 0.95);
+      --line: rgba(132, 206, 255, 0.15);
+      --text: #eef7ff;
+      --muted: #9db5cb;
+      --accent: #76d8ff;
+      --accent-2: #98ffc6;
+      --warn: #ffd27f;
+      --good: #96ffd2;
+      --bad: #ff9c9c;
+      --shadow: 0 22px 72px rgba(0, 0, 0, 0.34);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(118, 216, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #07111a 0%, #091624 52%, #081019 100%);
+      padding: 30px 16px 46px;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero { padding: 28px; margin-bottom: 20px; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(118, 216, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.06;
+    }
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+    .panel { padding: 22px; }
+    .panel h2 { margin: 0 0 14px; font-size: 20px; }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(132, 206, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      color: #062033;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      border-radius: 12px;
+      background: rgba(255, 210, 127, 0.08);
+      color: #ffe4aa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty { color: var(--muted); line-height: 1.7; }
+    .result-stack { display: grid; gap: 16px; }
+    .score-card, .section {
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .score-card strong {
+      display: block;
+      font-size: 34px;
+      margin-bottom: 6px;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .chip.bad { color: var(--bad); background: rgba(255, 156, 156, 0.1); }
+    .chip.good { color: var(--good); background: rgba(150, 255, 210, 0.1); }
+    .section h3 { margin: 0 0 12px; font-size: 18px; }
+    .section ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .rewrite-card {
+      display: grid;
+      gap: 10px;
+    }
+    .rewrite-item {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(118, 216, 255, 0.14);
+      background: rgba(118, 216, 255, 0.06);
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .rewrite-item strong { color: var(--accent-2); }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🎣 Playground MVP · 标题有没有钩子</div>
+      <h1>标题吸引力体检器</h1>
+      <p class="lead">
+        输入一个标题、首页首屏 headline 或一句主文案，我会快速判断它到底是偏平、偏空，
+        还是已经有一点“让人愿意停下来继续看”的钩子，并给你 3 条更有吸引力的改写方向。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">直接贴一句标题就行。也可以补一点背景，比如给谁看、在哪个页面用、你想强调什么。</div>
+        <textarea id="headlineInput" placeholder="例如：帮小团队更高效地管理项目"></textarea>
+        <input id="contextInput" type="text" placeholder="可选：补充背景，例如 首页首屏 / 面向独立开发者 / 想强调省时间" />
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始体检</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">标题不一定要夸张，但至少要让人一眼知道：这是什么、给谁、为什么值得继续看。</div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先给我一句标题，我来看看它到底有没有钩子。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const headlineInput = document.getElementById('headlineInput');
+    const contextInput = document.getElementById('contextInput');
+    const resultPanel = document.getElementById('resultPanel');
+
+    const demoHeadline = '帮小团队更高效地管理项目';
+    const vagueWords = ['高效', '智能', '一站式', '协同', '赋能', '增长', '解决方案', '革新'];
+    const audienceWords = ['开发者', '团队', '企业', '创作者', '独立', '小团队', '运营'];
+    const actionWords = ['管理', '写', '发布', '整理', '同步', '生成', '追踪', '完成', '减少', '节省'];
+    const resultWords = ['更快', '省时间', '少花', '自动', '当天', '分钟', '拿到结果', '完成'];
+    const urgencyWords = ['立即', '立刻', '现在', '今天', '30 分钟', '10 分钟'];
+
+    function includesAny(text, words) {
+      return words.some((word) => text.includes(word));
+    }
+
+    function sentenceStyle(text) {
+      if (text.length <= 12) return '短';
+      if (text.length <= 20) return '中';
+      return '长';
+    }
+
+    function buildSuggestions(text, context, result) {
+      const clean = text.replace(/[。！!]/g, '').trim();
+      const object = includesAny(clean, audienceWords) ? '' : '给小团队的';
+      const action = includesAny(clean, actionWords) ? clean : `${object}项目管理工具`;
+      const focus = context.includes('省时间') || !result.hasOutcome ? '少花一半时间' : '更快推进重点任务';
+
+      return [
+        `把结果先说出来：${object}${focus}的 ${action}`,
+        `把对象和动作钉住：${object}用来${clean || '推进任务'}，不再靠群聊追进度`,
+        `把场景拉近：今天就能上手的 ${object}${clean || '项目管理方式'}，让事情真的动起来`
+      ];
+    }
+
+    function analyze(text, context) {
+      const full = `${text} ${context}`;
+      const hits = vagueWords.filter((word) => full.includes(word));
+      const hasAudience = includesAny(full, audienceWords);
+      const hasAction = includesAny(full, actionWords);
+      const hasOutcome = includesAny(full, resultWords);
+      const hasUrgency = includesAny(full, urgencyWords);
+      const style = sentenceStyle(text);
+
+      let score = 84 - hits.length * 10;
+      if (!hasAudience) score -= 8;
+      if (!hasAction) score -= 10;
+      if (!hasOutcome) score -= 12;
+      if (style === '长') score -= 8;
+      if (hasUrgency) score += 4;
+      score = Math.max(18, Math.min(95, score));
+
+      let verdict = '偏平';
+      if (score >= 76) verdict = '有钩子';
+      else if (score >= 56) verdict = '有点意思，但还不够狠';
+      else verdict = '偏平 / 偏空';
+
+      const problems = [];
+      const strengths = [];
+      const suggestions = [];
+
+      if (hits.length) {
+        problems.push(`里面有这些偏公版的词：${hits.join('、')}，会稀释记忆点。`);
+        suggestions.push('先把抽象词换成具体动作或结果。');
+      }
+      if (!hasAudience) {
+        problems.push('没讲清楚是给谁的，读者会觉得“像是写给所有人”。');
+        suggestions.push('补一个明确对象，比如小团队、独立开发者、运营同学。');
+      } else {
+        strengths.push('对象还算可见，这会比泛泛而谈更容易让人对号入座。');
+      }
+      if (!hasAction) {
+        problems.push('动作感不够强，读者知道方向，但不知道你到底帮他做什么。');
+        suggestions.push('补一个更具体的动作，比如整理、发布、追踪、生成。');
+      } else {
+        strengths.push('动作词还在，说明标题不是完全空的。');
+      }
+      if (!hasOutcome) {
+        problems.push('结果不够具体，少了“为什么现在要继续看下去”的理由。');
+        suggestions.push('加一个更实的结果，比如省时间、少切工具、当天能完成。');
+      } else {
+        strengths.push('已经带一点结果感，这会明显提升吸引力。');
+      }
+      if (style === '长') {
+        problems.push('这句有点长，首屏里容易显得松散。');
+        suggestions.push('尝试压到 12-18 个字左右，会更像 headline。');
+      } else {
+        strengths.push('长度还算适合做首屏标题。');
+      }
+      if (!strengths.length) strengths.push('方向没跑偏，主要问题是记忆点和结果感还不够强。');
+      if (!suggestions.length) suggestions.push('已经不错了，可以再试着更短一点、更像一句能停住人的话。');
+
+      return {
+        score,
+        verdict,
+        hits,
+        hasOutcome,
+        problems,
+        strengths,
+        suggestions,
+        rewrites: buildSuggestions(text, context, { hasOutcome })
+      };
+    }
+
+    function render(result) {
+      resultPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="result-stack">
+          <div class="score-card">
+            <strong>${result.score}</strong>
+            吸引力分 · 当前判断：${result.verdict}
+            <div class="chip-row">
+              ${result.hits.length
+                ? result.hits.map((item) => `<span class="chip bad">偏空词：${item}</span>`).join('')
+                : '<span class="chip good">没有明显命中常见空泛词</span>'}
+            </div>
+          </div>
+          <div class="section">
+            <h3>为什么它现在还不够抓人</h3>
+            <ul>${result.problems.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>这句标题还有哪些可取之处</h3>
+            <ul>${result.strengths.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>3 条更有钩子的改写建议</h3>
+            <div class="rewrite-card">
+              ${result.rewrites.map((item, index) => `<div class="rewrite-item"><strong>版本 ${index + 1}</strong><br>${item}</div>`).join('')}
+            </div>
+          </div>
+          <div class="section">
+            <h3>优先改这几件事</h3>
+            <ul>${result.suggestions.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const text = headlineInput.value.trim();
+      if (!text) {
+        resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">先给我一句标题呀，不然我没法判断它有没有钩子。</p>';
+        return;
+      }
+      render(analyze(text, contextInput.value.trim()));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      headlineInput.value = demoHeadline;
+      contextInput.value = '首页首屏，面向小团队，想强调省时间';
+      render(analyze(headlineInput.value, contextInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      headlineInput.value = '';
+      contextInput.value = '';
+      resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先给我一句标题，我来看看它到底有没有钩子。</p>';
+    });
+  </script>
+</body>
+</html>
