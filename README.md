@@ -81,4 +81,10 @@
 - 目录：`projects/idea_2026_05_01_headline_hook_checker/`
 - 说明：输入一个标题或首页首屏 headline，快速判断它是偏平、偏空还是有钩子，并给出 3 条更有吸引力的改写建议。
 
+## 2026-05-02
+- 今日创意冲刺：23:00 发出 4 个 ideas，23:30 因用户未选择，自动补全执行
+- 自选实现：**CTA 犹豫指数检查器**
+- 目录：`projects/idea_2026_05_02_cta_hesitation_checker/`
+- 说明：输入一句按钮文案或 CTA，快速判断它为什么不够想点，并给出 3 条更有行动感的改写建议。
+
 <!-- commit identity check: XiaoXiaoYu -->

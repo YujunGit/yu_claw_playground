@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTA 犹豫指数检查器</title>
+  <style>
+    :root {
+      --bg: #08111c;
+      --panel: rgba(12, 24, 40, 0.9);
+      --panel-2: rgba(18, 34, 57, 0.95);
+      --line: rgba(132, 206, 255, 0.15);
+      --text: #eef7ff;
+      --muted: #9db5cb;
+      --accent: #76d8ff;
+      --accent-2: #98ffc6;
+      --warn: #ffd27f;
+      --good: #96ffd2;
+      --bad: #ff9c9c;
+      --shadow: 0 22px 72px rgba(0, 0, 0, 0.34);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(118, 216, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #07111a 0%, #091624 52%, #081019 100%);
+      padding: 30px 16px 46px;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero { padding: 28px; margin-bottom: 20px; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(118, 216, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.06;
+    }
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+    .panel { padding: 22px; }
+    .panel h2 { margin: 0 0 14px; font-size: 20px; }
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(132, 206, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary {
+      color: #062033;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      border-radius: 12px;
+      background: rgba(255, 210, 127, 0.08);
+      color: #ffe4aa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty { color: var(--muted); line-height: 1.7; }
+    .result-stack { display: grid; gap: 16px; }
+    .score-card, .section {
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .score-card strong { display:block; font-size:34px; margin-bottom:6px; }
+    .chip-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .chip.bad { color: var(--bad); background: rgba(255, 156, 156, 0.1); }
+    .chip.good { color: var(--good); background: rgba(150, 255, 210, 0.1); }
+    .section h3 { margin:0 0 12px; font-size:18px; }
+    .section ul {
+      margin:0;
+      padding-left:18px;
+      color: var(--muted);
+      line-height:1.7;
+    }
+    .rewrite-card { display:grid; gap:10px; }
+    .rewrite-item {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(118, 216, 255, 0.14);
+      background: rgba(118, 216, 255, 0.06);
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .rewrite-item strong { color: var(--accent-2); }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">👉 Playground MVP · CTA 到底想不想点</div>
+      <h1>CTA 犹豫指数检查器</h1>
+      <p class="lead">
+        输入一句按钮文案、行动号召或 CTA 区块，我会快速判断它为什么还不够让人想点，
+        再给你 3 条更有行动感、更少犹豫的改写建议。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">直接贴一句 CTA 就行。也可以补一点背景，比如这是注册按钮、咨询按钮，还是下载按钮。</div>
+        <textarea id="ctaInput" placeholder="例如：立即体验我们的平台"></textarea>
+        <input id="contextInput" type="text" placeholder="可选：补充背景，例如 首页主按钮 / 面向独立开发者 / 想强调免费试用" />
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始检查</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">好的 CTA 不只是“像按钮”，而是能让人立刻明白：点了以后我会得到什么。</div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先给我一句 CTA，我来看看它为什么还不够想点。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const ctaInput = document.getElementById('ctaInput');
+    const contextInput = document.getElementById('contextInput');
+    const resultPanel = document.getElementById('resultPanel');
+
+    const demoText = '立即体验我们的平台';
+    const vagueWords = ['体验', '了解更多', '点击查看', '平台', '方案', '服务', '赋能', '开启未来'];
+    const actionWords = ['注册', '下载', '预约', '开始', '试用', '获取', '咨询', '创建', '查看', '领取'];
+    const resultWords = ['免费', '示例', '模板', '方案', '结果', '报告', '演示', '清单', '3 分钟', '当天'];
+    const audienceWords = ['开发者', '团队', '企业', '创作者', '独立', '商家'];
+
+    function includesAny(text, words) {
+      return words.some((word) => text.includes(word));
+    }
+
+    function buildRewrites(text, context, hasResult) {
+      const base = text.replace(/[。！!]/g, '').trim() || '开始使用';
+      const audience = includesAny(context, audienceWords) ? context.match(/开发者|团队|企业|创作者|独立|商家/)?.[0] || '' : '';
+      const prefix = audience ? `给${audience}的` : '';
+      return [
+        `${prefix}现在就免费试用，看看 3 分钟内能不能跑起来`,
+        `先拿一份可直接用的示例，再决定要不要继续`,
+        `${base.replace('体验', '试用').replace('了解更多', '先看示例')}，马上知道值不值得你点下一步`
+      ];
+    }
+
+    function analyze(text, context) {
+      const full = `${text} ${context}`;
+      const hits = vagueWords.filter((word) => full.includes(word));
+      const hasAction = includesAny(full, actionWords);
+      const hasResult = includesAny(full, resultWords);
+      const hasAudience = includesAny(full, audienceWords);
+      const tooLong = text.length > 18;
+
+      let score = 82 - hits.length * 11;
+      if (!hasAction) score -= 10;
+      if (!hasResult) score -= 14;
+      if (tooLong) score -= 8;
+      if (!hasAudience) score -= 4;
+      score = Math.max(16, Math.min(94, score));
+
+      let verdict = '犹豫感偏强';
+      if (score >= 76) verdict = '行动感不错';
+      else if (score >= 56) verdict = '能用，但还不够想点';
+
+      const problems = [];
+      const strengths = [];
+      const suggestions = [];
+
+      if (hits.length) {
+        problems.push(`命中了这些容易让人无感的 CTA 词：${hits.join('、')}。`);
+        suggestions.push('把空泛词换成“点了以后会拿到什么”。');
+      }
+      if (!hasAction) {
+        problems.push('动作不够明确，用户未必知道点击后会发生什么。');
+        suggestions.push('优先用更具体的动词，比如注册、下载、领取、试用、预约。');
+      } else {
+        strengths.push('至少有动作词，不会完全像一句介绍文。');
+      }
+      if (!hasResult) {
+        problems.push('结果感偏弱，少了“为什么现在就点”的动力。');
+        suggestions.push('补上结果，例如免费试用、拿模板、看示例、获取报告。');
+      } else {
+        strengths.push('已经带一点结果预期，这会明显减少犹豫。');
+      }
+      if (tooLong) {
+        problems.push('CTA 偏长，像一小句说明，不够像一个利落按钮。');
+        suggestions.push('按钮文案尽量压短，把解释放到按钮旁边。');
+      } else {
+        strengths.push('长度还算适合做按钮或主 CTA。');
+      }
+      if (hasAudience) strengths.push('对象感有一点，能帮助用户更快判断“这是不是给我的”。');
+      if (!strengths.length) strengths.push('方向不算错，主要问题是行动感和结果感还不够直接。');
+      if (!suggestions.length) suggestions.push('已经能用了，可以继续往更短、更具体、更结果导向的方向压。');
+
+      return { score, verdict, hits, problems, strengths, suggestions, rewrites: buildRewrites(text, context, hasResult) };
+    }
+
+    function render(result) {
+      resultPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="result-stack">
+          <div class="score-card">
+            <strong>${result.score}</strong>
+            犹豫指数分 · 当前判断：${result.verdict}
+            <div class="chip-row">
+              ${result.hits.length ? result.hits.map((item) => `<span class="chip bad">无感词：${item}</span>`).join('') : '<span class="chip good">没有明显命中常见空泛 CTA 词</span>'}
+            </div>
+          </div>
+          <div class="section">
+            <h3>为什么它现在还不够想点</h3>
+            <ul>${result.problems.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>这句 CTA 还有哪些可取之处</h3>
+            <ul>${result.strengths.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>3 条更想让人行动的改写建议</h3>
+            <div class="rewrite-card">
+              ${result.rewrites.map((item, index) => `<div class="rewrite-item"><strong>版本 ${index + 1}</strong><br>${item}</div>`).join('')}
+            </div>
+          </div>
+          <div class="section">
+            <h3>优先改这几件事</h3>
+            <ul>${result.suggestions.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const text = ctaInput.value.trim();
+      if (!text) {
+        resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">先给我一句 CTA 呀，不然我没法判断它为什么不够想点。</p>';
+        return;
+      }
+      render(analyze(text, contextInput.value.trim()));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      ctaInput.value = demoText;
+      contextInput.value = '首页主按钮，面向独立开发者，想强调免费试用';
+      render(analyze(ctaInput.value, contextInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      ctaInput.value = '';
+      contextInput.value = '';
+      resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先给我一句 CTA，我来看看它为什么还不够想点。</p>';
+    });
+  </script>
+</body>
+</html>
