@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>定价文案扎心检查器</title>
+  <style>
+    :root {
+      --bg: #08111c;
+      --panel: rgba(12, 24, 40, 0.9);
+      --panel-2: rgba(18, 34, 57, 0.95);
+      --line: rgba(132, 206, 255, 0.15);
+      --text: #eef7ff;
+      --muted: #9db5cb;
+      --accent: #76d8ff;
+      --accent-2: #98ffc6;
+      --warn: #ffd27f;
+      --good: #96ffd2;
+      --bad: #ff9c9c;
+      --shadow: 0 22px 72px rgba(0, 0, 0, 0.34);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(118, 216, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #07111a 0%, #091624 52%, #081019 100%);
+      padding: 30px 16px 46px;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero { padding: 28px; margin-bottom: 20px; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(118, 216, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 { margin: 0 0 12px; font-size: clamp(28px, 4vw, 46px); line-height: 1.06; }
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+    }
+    .panel { padding: 22px; }
+    .panel h2 { margin: 0 0 14px; font-size: 20px; }
+    .helper { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(132, 206, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea { min-height: 170px; resize: vertical; line-height: 1.6; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary { color: #062033; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      border-radius: 12px;
+      background: rgba(255, 210, 127, 0.08);
+      color: #ffe4aa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty { color: var(--muted); line-height: 1.7; }
+    .result-stack { display: grid; gap: 16px; }
+    .score-card, .section {
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .score-card strong { display: block; font-size: 34px; margin-bottom: 6px; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .chip.bad { color: var(--bad); background: rgba(255, 156, 156, 0.1); }
+    .chip.good { color: var(--good); background: rgba(150, 255, 210, 0.1); }
+    .section h3 { margin: 0 0 12px; font-size: 18px; }
+    .section ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.7; }
+    .rewrite-card { display: grid; gap: 10px; }
+    .rewrite-item {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(118, 216, 255, 0.14);
+      background: rgba(118, 216, 255, 0.06);
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .rewrite-item strong { color: var(--accent-2); }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">💸 Playground MVP · 定价文案有没有打到痛点</div>
+      <h1>定价文案扎心检查器</h1>
+      <p class="lead">
+        输入一句 pricing 文案、套餐介绍或付费说明，我会快速判断它到底是在讲价值，
+        还是只是在自说自话，然后给你 3 条更容易让人理解“为什么值得付钱”的改写建议。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">直接贴一句定价相关文案就行。也可以补一点背景，比如面向谁、卖什么、希望强调省时间还是省成本。</div>
+        <textarea id="pricingInput" placeholder="例如：只需每月 29 美元，即可体验我们强大的 AI 协同平台。"></textarea>
+        <input id="contextInput" type="text" placeholder="可选：补充背景，例如 面向独立开发者 / 想强调省时间 / 首页 pricing 区块" />
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始检查</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">好的定价文案不只是说“多少钱”，而是让人立刻明白：这笔钱换来的具体价值是什么。</div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先给我一句定价文案，我来看看它为什么还不够让人想付钱。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const pricingInput = document.getElementById('pricingInput');
+    const contextInput = document.getElementById('contextInput');
+    const resultPanel = document.getElementById('resultPanel');
+
+    const demoText = '只需每月 29 美元，即可体验我们强大的 AI 协同平台。';
+    const vagueWords = ['强大', '领先', '平台', '解决方案', '赋能', '极致', '高效', '智能'];
+    const valueWords = ['省时间', '减少', '自动', '节省', '更快', '当天', '模板', '报告', '客户'];
+    const audienceWords = ['开发者', '团队', '企业', '创作者', '独立', '商家', '运营'];
+    const moneyWords = ['每月', '每年', '免费', '美元', '元', '试用', '年付', '月付'];
+
+    function includesAny(text, words) {
+      return words.some((word) => text.includes(word));
+    }
+
+    function buildRewrites(text, context, hasAudience, hasValue) {
+      const audience = hasAudience ? '' : '给小团队的';
+      const value = hasValue ? '' : '，省掉来回切工具和手动整理的时间';
+      return [
+        `${audience}每月 29 美元，就能更快把分散工作收回到一个地方${value}`,
+        `花一顿外卖的钱，换来每天少折腾半小时${value}`,
+        `如果你想更快完成日常协作，这个价格买到的是更省时间的工作流，而不只是一个“平台”`
+      ];
+    }
+
+    function analyze(text, context) {
+      const full = `${text} ${context}`;
+      const hits = vagueWords.filter((word) => full.includes(word));
+      const hasValue = includesAny(full, valueWords);
+      const hasAudience = includesAny(full, audienceWords);
+      const hasMoney = includesAny(full, moneyWords);
+      const hasComparison = includesAny(full, ['一顿外卖', '一杯咖啡', '每天', '每周']);
+
+      let score = 84 - hits.length * 10;
+      if (!hasValue) score -= 16;
+      if (!hasAudience) score -= 8;
+      if (!hasMoney) score -= 8;
+      if (!hasComparison) score -= 6;
+      score = Math.max(18, Math.min(94, score));
+
+      let verdict = '偏自说自话';
+      if (score >= 76) verdict = '价值感不错';
+      else if (score >= 56) verdict = '能用，但还不够打动人';
+
+      const problems = [];
+      const strengths = [];
+      const suggestions = [];
+
+      if (hits.length) {
+        problems.push(`命中了这些容易显得空的词：${hits.join('、')}。`);
+        suggestions.push('少讲“强大/领先/平台”，多讲用户为什么值得掏这笔钱。');
+      }
+      if (!hasValue) {
+        problems.push('没有把价格和具体价值绑在一起，用户会觉得你只是在报数。');
+        suggestions.push('补上更具体的收益，比如每天省多少时间、少做哪一步。');
+      } else {
+        strengths.push('已经带一点结果或收益感，这比单纯报价格更有说服力。');
+      }
+      if (!hasAudience) {
+        problems.push('对象不够明确，像谁都能买，也像谁都不一定需要。');
+        suggestions.push('把这笔钱主要花给谁说清楚，比如独立开发者、小团队、运营同学。');
+      } else {
+        strengths.push('对象感还可以，能帮助用户更快判断“是不是说给我的”。');
+      }
+      if (!hasMoney) {
+        problems.push('定价文案里居然没把价格结构说清楚，会让人更犹豫。');
+        suggestions.push('至少明确月付 / 年付 / 免费试用等价格结构。');
+      } else {
+        strengths.push('价格结构信息至少在，基础沟通没有丢。');
+      }
+      if (!hasComparison) {
+        problems.push('缺少一个贴近日常的价值锚点，不容易让人立刻感到“这钱值不值”。');
+        suggestions.push('可以加一个更贴近生活或工作结果的对比锚点。');
+      } else {
+        strengths.push('有一点价值锚点，会更容易让人迅速衡量。');
+      }
+      if (!strengths.length) strengths.push('方向没完全跑偏，主要问题是价值感还不够具体。');
+      if (!suggestions.length) suggestions.push('已经不差了，可以继续往“更具体、更少空词、更像真实价值交换”方向打磨。');
+
+      return { score, verdict, hits, problems, strengths, suggestions, rewrites: buildRewrites(text, context, hasAudience, hasValue) };
+    }
+
+    function render(result) {
+      resultPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="result-stack">
+          <div class="score-card">
+            <strong>${result.score}</strong>
+            价值说服力分 · 当前判断：${result.verdict}
+            <div class="chip-row">
+              ${result.hits.length ? result.hits.map((item) => `<span class="chip bad">空词：${item}</span>`).join('') : '<span class="chip good">没有明显命中常见空泛定价词</span>'}
+            </div>
+          </div>
+          <div class="section">
+            <h3>为什么它现在还不够让人想付钱</h3>
+            <ul>${result.problems.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>这段文案还有哪些可取之处</h3>
+            <ul>${result.strengths.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>3 条更像价值表达的改写建议</h3>
+            <div class="rewrite-card">
+              ${result.rewrites.map((item, index) => `<div class="rewrite-item"><strong>版本 ${index + 1}</strong><br>${item}</div>`).join('')}
+            </div>
+          </div>
+          <div class="section">
+            <h3>优先改这几件事</h3>
+            <ul>${result.suggestions.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const text = pricingInput.value.trim();
+      if (!text) {
+        resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">先给我一句定价文案呀，不然我没法判断它为什么不够打动人。</p>';
+        return;
+      }
+      render(analyze(text, contextInput.value.trim()));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      pricingInput.value = demoText;
+      contextInput.value = '首页 pricing 区块，面向独立开发者，想强调省时间';
+      render(analyze(pricingInput.value, contextInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      pricingInput.value = '';
+      contextInput.value = '';
+      resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先给我一句定价文案，我来看看它为什么还不够让人想付钱。</p>';
+    });
+  </script>
+</body>
+</html>

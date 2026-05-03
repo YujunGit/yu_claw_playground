@@ -87,4 +87,10 @@
 - 目录：`projects/idea_2026_05_02_cta_hesitation_checker/`
 - 说明：输入一句按钮文案或 CTA，快速判断它为什么不够想点，并给出 3 条更有行动感的改写建议。
 
+## 2026-05-03
+- 今日创意冲刺：23:00 发出 4 个 ideas，23:30 因用户未选择，自动补全执行
+- 自选实现：**定价文案扎心检查器**
+- 目录：`projects/idea_2026_05_03_pricing_copy_pain_checker/`
+- 说明：输入一段 pricing 文案，快速判断它为什么不够让人想付钱，并给出 3 条更像价值表达的改写建议。
+
 <!-- commit identity check: XiaoXiaoYu -->
