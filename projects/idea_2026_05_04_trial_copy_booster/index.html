@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>免费试用文案补强器</title>
+  <style>
+    :root {
+      --bg: #08111c;
+      --panel: rgba(12, 24, 40, 0.9);
+      --panel-2: rgba(18, 34, 57, 0.95);
+      --line: rgba(132, 206, 255, 0.15);
+      --text: #eef7ff;
+      --muted: #9db5cb;
+      --accent: #76d8ff;
+      --accent-2: #98ffc6;
+      --warn: #ffd27f;
+      --good: #96ffd2;
+      --bad: #ff9c9c;
+      --shadow: 0 22px 72px rgba(0, 0, 0, 0.34);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(118, 216, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #07111a 0%, #091624 52%, #081019 100%);
+      padding: 30px 16px 46px;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .hero { padding: 28px; margin-bottom: 20px; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(118, 216, 255, 0.1);
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 { margin: 0 0 12px; font-size: clamp(28px, 4vw, 46px); line-height: 1.06; }
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+    .grid { display: grid; grid-template-columns: 420px 1fr; gap: 20px; }
+    .panel { padding: 22px; }
+    .panel h2 { margin: 0 0 14px; font-size: 20px; }
+    .helper { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+    textarea, input {
+      width: 100%;
+      border: 1px solid rgba(132, 206, 255, 0.2);
+      border-radius: 16px;
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 13px 15px;
+      font: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea { min-height: 170px; resize: vertical; line-height: 1.6; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary { color: #062033; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tip {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warn);
+      border-radius: 12px;
+      background: rgba(255, 210, 127, 0.08);
+      color: #ffe4aa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .empty { color: var(--muted); line-height: 1.7; }
+    .result-stack { display: grid; gap: 16px; }
+    .score-card, .section {
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .score-card strong { display: block; font-size: 34px; margin-bottom: 6px; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .chip.bad { color: var(--bad); background: rgba(255, 156, 156, 0.1); }
+    .chip.good { color: var(--good); background: rgba(150, 255, 210, 0.1); }
+    .section h3 { margin: 0 0 12px; font-size: 18px; }
+    .section ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.7; }
+    .rewrite-card { display: grid; gap: 10px; }
+    .rewrite-item {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(118, 216, 255, 0.14);
+      background: rgba(118, 216, 255, 0.06);
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .rewrite-item strong { color: var(--accent-2); }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🆓 Playground MVP · 免费试用为什么还是没人点</div>
+      <h1>免费试用文案补强器</h1>
+      <p class="lead">
+        输入一句 trial / demo / 免费体验相关文案，我会快速判断它为什么还没能真正降低用户的心理门槛，
+        然后给你 3 条更能让人放心点进去试试的改写建议。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>输入区</h2>
+        <div class="helper">直接贴一句免费试用相关文案就行。也可以补一点背景，比如给谁用、有没有信用卡门槛、想强调“马上可用”还是“零风险”。</div>
+        <textarea id="trialInput" placeholder="例如：立即免费体验我们的平台，开启更高效的工作方式。"></textarea>
+        <input id="contextInput" type="text" placeholder="可选：补充背景，例如 面向独立开发者 / 无需信用卡 / 想强调马上上手" />
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">开始检查</button>
+          <button class="ghost" id="demoBtn">填入示例</button>
+          <button class="ghost" id="clearBtn">清空</button>
+        </div>
+        <div class="tip">好的试用文案不是只说“免费”，而是让人放心：我点了以后不会被坑、不会浪费时间、很快就能看到值不值。</div>
+      </section>
+
+      <section class="panel" id="resultPanel">
+        <h2>结果区</h2>
+        <p class="empty">还没开始。先给我一句试用文案，我来看看它为什么还不够让人放心点进去。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const trialInput = document.getElementById('trialInput');
+    const contextInput = document.getElementById('contextInput');
+    const resultPanel = document.getElementById('resultPanel');
+
+    const demoText = '立即免费体验我们的平台，开启更高效的工作方式。';
+    const vagueWords = ['平台', '高效', '领先', '智能', '解决方案', '强大', '革新'];
+    const riskWords = ['无需信用卡', '随时取消', '无需安装', '不收费', '零门槛'];
+    const speedWords = ['3 分钟', '马上', '立即', '当天', '现在'];
+    const valueWords = ['省时间', '模板', '示例', '自动', '报告', '上手'];
+    const audienceWords = ['开发者', '团队', '企业', '创作者', '独立', '运营'];
+
+    function includesAny(text, words) {
+      return words.some((word) => text.includes(word));
+    }
+
+    function buildRewrites(text, context, hasRisk, hasValue) {
+      const audience = includesAny(context, audienceWords) ? '' : '给小团队的';
+      const riskPart = hasRisk ? '' : '，无需信用卡';
+      const valuePart = hasValue ? '' : '，3 分钟内看见它到底能不能帮你省时间';
+      return [
+        `${audience}现在就免费试试${riskPart}${valuePart}`,
+        `先直接上手看示例效果，再决定要不要继续${riskPart}`,
+        `不用先承诺任何事，先花 3 分钟试一下，看看它值不值得留在你的工作流里`
+      ];
+    }
+
+    function analyze(text, context) {
+      const full = `${text} ${context}`;
+      const hits = vagueWords.filter((word) => full.includes(word));
+      const hasRisk = includesAny(full, riskWords);
+      const hasSpeed = includesAny(full, speedWords);
+      const hasValue = includesAny(full, valueWords);
+      const hasAudience = includesAny(full, audienceWords);
+
+      let score = 84 - hits.length * 10;
+      if (!hasRisk) score -= 14;
+      if (!hasValue) score -= 14;
+      if (!hasSpeed) score -= 8;
+      if (!hasAudience) score -= 6;
+      score = Math.max(18, Math.min(94, score));
+
+      let verdict = '门槛感偏强';
+      if (score >= 76) verdict = '试用阻力不大';
+      else if (score >= 56) verdict = '能用，但还不够让人放心';
+
+      const problems = [];
+      const strengths = [];
+      const suggestions = [];
+
+      if (hits.length) {
+        problems.push(`命中了这些偏空的词：${hits.join('、')}。`);
+        suggestions.push('少讲抽象词，多讲试用后立刻能看到什么。');
+      }
+      if (!hasRisk) {
+        problems.push('没有消除风险顾虑，用户会担心要绑卡、被强留、或者白花时间。');
+        suggestions.push('补上“无需信用卡 / 随时取消 / 无需安装”这类风险消除信息。');
+      } else {
+        strengths.push('已经有一点风险消除信号，这会明显减少犹豫。');
+      }
+      if (!hasValue) {
+        problems.push('没讲清楚试用后能得到什么，容易变成“免费，但不知道值不值试”。');
+        suggestions.push('补一个更具体的结果，比如 3 分钟上手、拿到模板、自动生成第一份结果。');
+      } else {
+        strengths.push('已经有结果感，比单纯说“免费体验”更有推动力。');
+      }
+      if (!hasSpeed) {
+        problems.push('缺少“很快就能看到结果”的信号，用户会默认这事很麻烦。');
+        suggestions.push('加上“马上 / 3 分钟 / 当天可用”之类的时间承诺。');
+      } else {
+        strengths.push('时间感不错，会让试用显得更轻。');
+      }
+      if (!hasAudience) {
+        problems.push('对象感不够强，读者不容易判断这是不是给自己的。');
+        suggestions.push('把对象讲清楚，比如独立开发者、小团队或运营同学。');
+      } else {
+        strengths.push('对象感存在，能帮助用户更快对号入座。');
+      }
+      if (!strengths.length) strengths.push('方向没完全跑偏，核心问题是“为什么值得现在试一下”还没讲透。');
+      if (!suggestions.length) suggestions.push('已经不差了，可以继续往“更具体、更低风险、更快见效”方向再压。');
+
+      return { score, verdict, hits, problems, strengths, suggestions, rewrites: buildRewrites(text, context, hasRisk, hasValue) };
+    }
+
+    function render(result) {
+      resultPanel.innerHTML = `
+        <h2>结果区</h2>
+        <div class="result-stack">
+          <div class="score-card">
+            <strong>${result.score}</strong>
+            试用门槛感分 · 当前判断：${result.verdict}
+            <div class="chip-row">
+              ${result.hits.length ? result.hits.map((item) => `<span class="chip bad">空词：${item}</span>`).join('') : '<span class="chip good">没有明显命中常见空泛试用词</span>'}
+            </div>
+          </div>
+          <div class="section">
+            <h3>为什么它现在还不够让人放心去试</h3>
+            <ul>${result.problems.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>这段文案还有哪些可取之处</h3>
+            <ul>${result.strengths.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+          <div class="section">
+            <h3>3 条更能降低顾虑的改写建议</h3>
+            <div class="rewrite-card">
+              ${result.rewrites.map((item, index) => `<div class="rewrite-item"><strong>版本 ${index + 1}</strong><br>${item}</div>`).join('')}
+            </div>
+          </div>
+          <div class="section">
+            <h3>优先改这几件事</h3>
+            <ul>${result.suggestions.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const text = trialInput.value.trim();
+      if (!text) {
+        resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">先给我一句试用文案呀，不然我没法判断它为什么还不够让人放心。</p>';
+        return;
+      }
+      render(analyze(text, contextInput.value.trim()));
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      trialInput.value = demoText;
+      contextInput.value = '面向独立开发者，无需信用卡，想强调马上上手';
+      render(analyze(trialInput.value, contextInput.value));
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      trialInput.value = '';
+      contextInput.value = '';
+      resultPanel.innerHTML = '<h2>结果区</h2><p class="empty">还没开始。先给我一句试用文案，我来看看它为什么还不够让人放心点进去。</p>';
+    });
+  </script>
+</body>
+</html>

@@ -93,4 +93,10 @@
 - 目录：`projects/idea_2026_05_03_pricing_copy_pain_checker/`
 - 说明：输入一段 pricing 文案，快速判断它为什么不够让人想付钱，并给出 3 条更像价值表达的改写建议。
 
+## 2026-05-04
+- 今日创意冲刺：23:00 发出 4 个 ideas，23:30 因用户未选择，自动补全执行
+- 自选实现：**免费试用文案补强器**
+- 目录：`projects/idea_2026_05_04_trial_copy_booster/`
+- 说明：输入一段 trial / demo / 免费体验文案，快速判断它为什么还不能降低心理门槛，并给出 3 条更能降低顾虑的改写建议。
+
 <!-- commit identity check: XiaoXiaoYu -->
